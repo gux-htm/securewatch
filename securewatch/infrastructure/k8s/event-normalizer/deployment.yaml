@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: event-normalizer
+  namespace: securewatch-integration
+  labels:
+    app: event-normalizer
+    component: normalizer
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: event-normalizer
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: event-normalizer
+    spec:
+      serviceAccountName: event-normalizer
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: event-normalizer
+          image: ghcr.io/securewatch/event-normalizer:latest
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: KAFKA_BROKERS
+              valueFrom:
+                secretKeyRef:
+                  name: kafka-config
+                  key: brokers
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 800m
+              memory: 512Mi
