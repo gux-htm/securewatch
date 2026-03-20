@@ -1,0 +1,24 @@
+{
+  "name": "@securewatch/integration-layer",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "nodemon --watch src --ext ts --exec \"node node_modules/ts-node/dist/bin.js src/app.ts\"",
+    "build": "tsc",
+    "start": "node dist/app.js"
+  },
+  "dependencies": {
+    "@fastify/cors": "^9.0.0",
+    "@fastify/helmet": "^11.0.0",
+    "fastify": "4.26.2",
+    "kafkajs": "^2.2.4",
+    "mysql2": "^3.9.7",
+    "node-cache": "^5.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "nodemon": "^3.1.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.0"
+  }
+}

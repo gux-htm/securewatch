@@ -1,0 +1,41 @@
+{
+  "name": "@securewatch/rest-api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "nodemon --watch src --ext ts --exec \"node node_modules/ts-node/dist/bin.js src/app.ts\"",
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "migrate": "node node_modules/ts-node/dist/bin.js src/db/migrate.ts",
+    "seed": "node node_modules/ts-node/dist/bin.js src/db/seed.ts",
+    "fix-admin": "node node_modules/ts-node/dist/bin.js src/db/fix-admin.ts",
+    "watcher": "node node_modules/ts-node/dist/bin.js src/watcher.ts"
+  },
+  "dependencies": {
+    "@fastify/cors": "^9.0.0",
+    "@fastify/helmet": "^11.0.0",
+    "@fastify/jwt": "^8.0.0",
+    "@types/uuid": "^10.0.0",
+    "bcrypt": "^6.0.0",
+    "chokidar": "^5.0.0",
+    "dotenv": "^17.3.1",
+    "fastify": "4.26.2",
+    "ip-cidr": "^4.0.2",
+    "jsonwebtoken": "^9.0.3",
+    "kafkajs": "^2.2.4",
+    "mysql2": "^3.9.7",
+    "node-cache": "^5.1.2",
+    "otplib": "^13.4.0",
+    "qrcode": "^1.5.4",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^20.0.0",
+    "@types/qrcode": "^1.5.6",
+    "nodemon": "^3.1.14",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.0"
+  }
+}

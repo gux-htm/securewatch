@@ -1,0 +1,23 @@
+{
+  "enabled": true,
+  "name": "Sync Docs on Source Change",
+  "description": "When any source file changes (TypeScript, TSX, CSS, config files), prompt the agent to reflect those changes in the README or any relevant documentation.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "src/**/*.css",
+      "vite.config.ts",
+      "tsconfig.json",
+      "tsconfig.node.json",
+      "package.json",
+      "index.html"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A source file was just edited. Review the change and update the README.md to reflect any relevant documentation changes — such as new features, updated components, changed routes, config changes, or anything else a developer reading the docs should know. Only update docs if the change is meaningful enough to warrant it."
+  }
+}

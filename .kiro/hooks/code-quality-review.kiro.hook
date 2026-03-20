@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "name": "Code Quality Review",
+  "description": "Analyzes modified source files for code smells, design pattern opportunities, and best practices. Suggests improvements for readability, maintainability, and performance while preserving existing functionality.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/**/*.ts",
+      "src/**/*.tsx"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A source file was just modified. Analyze the changes for potential improvements including: code smells, design pattern opportunities, and best practices violations. Suggest specific improvements for readability, maintainability, and performance optimizations. Do not make changes automatically — present your findings as actionable suggestions while confirming the existing functionality is preserved."
+  },
+  "workspaceFolderName": "SECUREWATCH",
+  "shortName": "code-quality-review"
+}
