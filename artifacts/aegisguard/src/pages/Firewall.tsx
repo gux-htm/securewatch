@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useFirewall } from "@/hooks/use-firewall";
 import { Card, CardContent, Badge, Button, Modal, Input, Select } from "@/components/ui-elements";
-import { Plus, ShieldAlert, Check, X, MoveUp, MoveDown } from "lucide-react";
+import { Plus, ShieldAlert, Check, X, MoveUp, MoveDown, Trash2 } from "lucide-react";
 import { CreateFirewallRuleInputAction, CreateFirewallRuleInputProtocol, CreateFirewallRuleInputDirection } from "@workspace/api-client-react";
 
 export default function Firewall() {

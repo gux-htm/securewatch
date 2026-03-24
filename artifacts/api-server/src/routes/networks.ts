@@ -47,7 +47,11 @@ router.get("/:id", async (req, res) => {
 
 router.delete("/:id", async (req, res) => {
   try {
-    await db.delete(networksTable).where(eq(networksTable.id, Number(req.params.id)));
+    const networkId = Number(req.params.id);
+    // Nullify the network reference on any devices belonging to this network
+    // before deleting to avoid FK constraint violations
+    await db.update(devicesTable).set({ networkId: null }).where(eq(devicesTable.networkId, networkId));
+    await db.delete(networksTable).where(eq(networksTable.id, networkId));
     res.status(204).send();
   } catch (err) {
     req.log.error(err);
