@@ -94,3 +94,32 @@ Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHea
 ### `scripts` (`@workspace/scripts`)
 
 Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+
+---
+
+## AegisGuard Python/FastAPI Native Implementation
+
+A second, standalone implementation of AegisGuard lives in `aegisguard/` at the workspace root. This is a **bare-metal, Docker-free** Python implementation for deployment on Ubuntu 22.04/24.04 LTS or Windows Server 2022/2025.
+
+### Python Stack
+- **Backend**: FastAPI + Uvicorn + SQLAlchemy 2.x + Alembic
+- **Database**: PostgreSQL 16 (native service)
+- **Cache/Real-time**: Redis (native service)
+- **VPN**: OpenVPN + Easy-RSA (managed via Python subprocess)
+- **Crypto**: cryptography + pyOpenSSL (RSA-PSS signed audit logs)
+- **Monitoring**: watchdog + psutil
+- **Packet Engine**: Scapy + netfilterqueue (Linux IPS) / WinDivert (Windows, v1.1)
+- **UI**: FastAPI + HTMX + TailwindCSS + Jinja2 (dark SOC theme)
+- **Deployment**: systemd services (Linux), NSSM (Windows)
+
+### Key Files
+- `aegisguard/install/install.sh` — Ubuntu 22.04/24.04 one-command installer
+- `aegisguard/install/install.ps1` — Windows Server 2022/2025 PowerShell installer
+- `aegisguard/server/main.py` — FastAPI application entry point
+- `aegisguard/database/models.py` — All SQLAlchemy models (devices, networks, firewall, IDS, files, audit)
+- `aegisguard/server/routers/devices.py` — Zero-trust triple verification (MAC + IP + cert fingerprint)
+- `aegisguard/agent/agent.py` — Full client daemon (watchdog + mTLS + policy enforcement)
+- `aegisguard/crypto/ca.py` — RSA-PSS CA + audit log signing/verification
+- `aegisguard/vpn/manager.py` — OpenVPN per-network instance management + .ovpn generation
+- `aegisguard/server/services/ids_engine.py` — Scapy IDS + NFQUEUE IPS with 12 built-in signatures
+- `aegisguard/AegisGuard_Final_Audit_Report.md` — Complete feature audit + Network Administrator user story

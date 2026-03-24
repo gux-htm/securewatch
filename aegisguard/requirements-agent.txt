@@ -1,0 +1,23 @@
+# AegisGuard Client Agent – Minimal Python 3.12 Dependencies
+# Install with: pip install -r requirements-agent.txt
+
+# ── Networking ────────────────────────────────────────────
+websockets==14.1
+httpx==0.28.1
+
+# ── Cryptography ──────────────────────────────────────────
+cryptography==44.0.0
+pyopenssl==24.3.0
+
+# ── File Monitoring ───────────────────────────────────────
+watchdog==6.0.0
+psutil==6.1.0
+
+# ── Packet Inspection (IDS/IPS) ───────────────────────────
+scapy==2.6.1
+# netfilterqueue==1.1.0  # Linux only
+
+# ── Data / Config ─────────────────────────────────────────
+pydantic==2.10.3
+python-dotenv==1.0.1
+loguru==0.7.3

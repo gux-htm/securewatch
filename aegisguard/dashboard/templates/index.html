@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% set active = "dashboard" %}
+{% block title %}Dashboard – AegisGuard SOC{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-white">Security Overview</h1>
+  <p class="text-slate-400 text-sm mt-1">Real-time telemetry and threat metrics</p>
+</div>
+
+<!-- Stats Grid -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
+     hx-get="/htmx/dashboard/stats" hx-trigger="load, every 30s" hx-swap="innerHTML">
+  <!-- Stats loaded via HTMX -->
+  <div class="card animate-pulse h-24"></div>
+  <div class="card animate-pulse h-24"></div>
+  <div class="card animate-pulse h-24"></div>
+  <div class="card animate-pulse h-24"></div>
+</div>
+
+<!-- Recent Alerts + File Events -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+  <div class="card">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-semibold text-white">Active Alerts</h2>
+      <a href="/ids" class="text-xs text-cyan-400 hover:underline">View all →</a>
+    </div>
+    <div hx-get="/htmx/ids/alerts?limit=5" hx-trigger="load, every 30s" hx-swap="innerHTML">
+      <div class="text-slate-500 text-sm">Loading...</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-semibold text-white">Recent File Events</h2>
+      <a href="/files" class="text-xs text-cyan-400 hover:underline">View all →</a>
+    </div>
+    <div hx-get="/htmx/files/events?limit=5" hx-trigger="load, every 30s" hx-swap="innerHTML">
+      <div class="text-slate-500 text-sm">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Devices Overview -->
+<div class="card">
+  <div class="flex items-center justify-between mb-3">
+    <h2 class="font-semibold text-white">Connected Devices</h2>
+    <a href="/devices" class="text-xs text-cyan-400 hover:underline">Manage →</a>
+  </div>
+  <div hx-get="/htmx/devices?limit=8" hx-trigger="load" hx-swap="innerHTML">
+    <div class="text-slate-500 text-sm">Loading...</div>
+  </div>
+</div>
+{% endblock %}
