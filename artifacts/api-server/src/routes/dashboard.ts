@@ -7,6 +7,8 @@ import {
   idsAlertsTable,
   fileEventsTable,
   auditLogsTable,
+  alertsTable,
+  sessionsTable,
 } from "@workspace/db/schema";
 import { count, eq, and } from "drizzle-orm";
 
@@ -38,6 +40,37 @@ router.get("/stats", async (req, res) => {
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Failed to get dashboard stats" });
+  }
+});
+
+router.get("/summary", async (req, res) => {
+  try {
+    const [criticalAlerts] = await db.select({ value: count() }).from(alertsTable)
+      .where(and(eq(alertsTable.severity, "CRITICAL"), eq(alertsTable.acknowledged, false)));
+    const [unacknowledgedAlerts] = await db.select({ value: count() }).from(alertsTable)
+      .where(eq(alertsTable.acknowledged, false));
+    const [activeSessions] = await db.select({ value: count() }).from(sessionsTable)
+      .where(eq(sessionsTable.isTerminated, false));
+    const [trustedDevices] = await db.select({ value: count() }).from(devicesTable)
+      .where(eq(devicesTable.status, "active"));
+    const [blockedDevices] = await db.select({ value: count() }).from(devicesTable)
+      .where(eq(devicesTable.status, "blocked"));
+    const [inactiveDevices] = await db.select({ value: count() }).from(devicesTable)
+      .where(eq(devicesTable.status, "inactive"));
+
+    res.json({
+      criticalAlertCount: Number(criticalAlerts.value),
+      unacknowledgedAlertCount: Number(unacknowledgedAlerts.value),
+      activeSessionCount: Number(activeSessions.value),
+      deviceCounts: {
+        trusted: Number(trustedDevices.value),
+        blocked: Number(blockedDevices.value),
+        inactive: Number(inactiveDevices.value),
+      },
+    });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Failed to get monitoring summary" });
   }
 });
 
