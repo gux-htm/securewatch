@@ -1,0 +1,1212 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: AegisGuard Enterprise Security Platform API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: devices
+    description: Device management and zero-trust verification
+  - name: networks
+    description: VPN network management
+  - name: firewall
+    description: Firewall rules management
+  - name: ids
+    description: IDS/IPS signatures and alerts
+  - name: files
+    description: File monitoring events
+  - name: audit
+    description: Audit log entries
+  - name: policies
+    description: Access control policies
+  - name: dashboard
+    description: Dashboard statistics
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      summary: Get dashboard statistics
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /devices:
+    get:
+      operationId: listDevices
+      tags: [devices]
+      summary: List all registered devices
+      parameters:
+        - name: networkId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive, blocked]
+      responses:
+        "200":
+          description: List of devices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Device"
+    post:
+      operationId: registerDevice
+      tags: [devices]
+      summary: Register a new device
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterDeviceInput"
+      responses:
+        "201":
+          description: Device registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+
+  /devices/{id}:
+    get:
+      operationId: getDevice
+      tags: [devices]
+      summary: Get a device by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Device details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+    patch:
+      operationId: updateDevice
+      tags: [devices]
+      summary: Update device status or network
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDeviceInput"
+      responses:
+        "200":
+          description: Updated device
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+    delete:
+      operationId: deleteDevice
+      tags: [devices]
+      summary: Remove a device
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /devices/{id}/verify:
+    post:
+      operationId: verifyDevice
+      tags: [devices]
+      summary: Zero-trust pre-connection verification
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyDeviceInput"
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationResult"
+
+  /networks:
+    get:
+      operationId: listNetworks
+      tags: [networks]
+      summary: List all VPN networks
+      responses:
+        "200":
+          description: List of networks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Network"
+    post:
+      operationId: createNetwork
+      tags: [networks]
+      summary: Create a new VPN network
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNetworkInput"
+      responses:
+        "201":
+          description: Network created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Network"
+
+  /networks/{id}:
+    get:
+      operationId: getNetwork
+      tags: [networks]
+      summary: Get network by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Network details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Network"
+    delete:
+      operationId: deleteNetwork
+      tags: [networks]
+      summary: Delete a network
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /networks/{id}/generate-ovpn:
+    post:
+      operationId: generateOvpn
+      tags: [networks]
+      summary: Generate .ovpn file for a device
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateOvpnInput"
+      responses:
+        "200":
+          description: OVPN config generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OvpnConfig"
+
+  /firewall/rules:
+    get:
+      operationId: listFirewallRules
+      tags: [firewall]
+      summary: List all firewall rules
+      parameters:
+        - name: networkId
+          in: query
+          schema:
+            type: integer
+        - name: deviceId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of firewall rules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FirewallRule"
+    post:
+      operationId: createFirewallRule
+      tags: [firewall]
+      summary: Create a new firewall rule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFirewallRuleInput"
+      responses:
+        "201":
+          description: Rule created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FirewallRule"
+
+  /firewall/rules/{id}:
+    patch:
+      operationId: updateFirewallRule
+      tags: [firewall]
+      summary: Update a firewall rule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateFirewallRuleInput"
+      responses:
+        "200":
+          description: Updated rule
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FirewallRule"
+    delete:
+      operationId: deleteFirewallRule
+      tags: [firewall]
+      summary: Delete a firewall rule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /ids/signatures:
+    get:
+      operationId: listIdsSignatures
+      tags: [ids]
+      summary: List IDS/IPS signatures
+      responses:
+        "200":
+          description: List of signatures
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IdsSignature"
+    post:
+      operationId: createIdsSignature
+      tags: [ids]
+      summary: Create a new IDS signature
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateIdsSignatureInput"
+      responses:
+        "201":
+          description: Signature created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdsSignature"
+
+  /ids/alerts:
+    get:
+      operationId: listIdsAlerts
+      tags: [ids]
+      summary: List IDS/IPS alerts
+      parameters:
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+        - name: resolved
+          in: query
+          schema:
+            type: boolean
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IdsAlert"
+    post:
+      operationId: createIdsAlert
+      tags: [ids]
+      summary: Create an IDS alert (from agent)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateIdsAlertInput"
+      responses:
+        "201":
+          description: Alert created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdsAlert"
+
+  /ids/alerts/{id}/resolve:
+    post:
+      operationId: resolveIdsAlert
+      tags: [ids]
+      summary: Mark an alert as resolved
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Alert resolved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdsAlert"
+
+  /files/events:
+    get:
+      operationId: listFileEvents
+      tags: [files]
+      summary: List file monitoring events
+      parameters:
+        - name: deviceId
+          in: query
+          schema:
+            type: integer
+        - name: action
+          in: query
+          schema:
+            type: string
+            enum: [create, edit, delete, rename, view]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of file events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FileEvent"
+    post:
+      operationId: createFileEvent
+      tags: [files]
+      summary: Record a file event (from agent)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFileEventInput"
+      responses:
+        "201":
+          description: Event recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileEvent"
+
+  /audit/logs:
+    get:
+      operationId: listAuditLogs
+      tags: [audit]
+      summary: List audit log entries
+      parameters:
+        - name: deviceId
+          in: query
+          schema:
+            type: integer
+        - name: eventType
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of audit log entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AuditLog"
+
+  /policies:
+    get:
+      operationId: listPolicies
+      tags: [policies]
+      summary: List access control policies
+      parameters:
+        - name: deviceId
+          in: query
+          schema:
+            type: integer
+        - name: userId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of policies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Policy"
+    post:
+      operationId: createPolicy
+      tags: [policies]
+      summary: Create an access control policy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePolicyInput"
+      responses:
+        "201":
+          description: Policy created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Policy"
+
+  /policies/{id}:
+    patch:
+      operationId: updatePolicy
+      tags: [policies]
+      summary: Update a policy
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePolicyInput"
+      responses:
+        "200":
+          description: Updated policy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Policy"
+    delete:
+      operationId: deletePolicy
+      tags: [policies]
+      summary: Delete a policy
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    DashboardStats:
+      type: object
+      properties:
+        totalDevices:
+          type: integer
+        activeDevices:
+          type: integer
+        blockedDevices:
+          type: integer
+        totalNetworks:
+          type: integer
+        totalFirewallRules:
+          type: integer
+        activeAlerts:
+          type: integer
+        criticalAlerts:
+          type: integer
+        totalFileEvents:
+          type: integer
+        recentAuditLogs:
+          type: integer
+      required:
+        - totalDevices
+        - activeDevices
+        - blockedDevices
+        - totalNetworks
+        - totalFirewallRules
+        - activeAlerts
+        - criticalAlerts
+        - totalFileEvents
+        - recentAuditLogs
+
+    Device:
+      type: object
+      properties:
+        id:
+          type: integer
+        hostname:
+          type: string
+        mac:
+          type: string
+        ip:
+          type: string
+        certFingerprint:
+          type: string
+        networkId:
+          type: integer
+        status:
+          type: string
+          enum: [active, inactive, blocked]
+        platform:
+          type: string
+        lastSeen:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - hostname
+        - mac
+        - ip
+        - certFingerprint
+        - status
+        - platform
+        - createdAt
+
+    RegisterDeviceInput:
+      type: object
+      properties:
+        hostname:
+          type: string
+        mac:
+          type: string
+        ip:
+          type: string
+        certFingerprint:
+          type: string
+        networkId:
+          type: integer
+        platform:
+          type: string
+      required:
+        - hostname
+        - mac
+        - ip
+        - certFingerprint
+        - platform
+
+    UpdateDeviceInput:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [active, inactive, blocked]
+        networkId:
+          type: integer
+        ip:
+          type: string
+
+    VerifyDeviceInput:
+      type: object
+      properties:
+        mac:
+          type: string
+        ip:
+          type: string
+        certFingerprint:
+          type: string
+      required:
+        - mac
+        - ip
+        - certFingerprint
+
+    VerificationResult:
+      type: object
+      properties:
+        allowed:
+          type: boolean
+        reason:
+          type: string
+        matchedFields:
+          type: object
+          properties:
+            mac:
+              type: boolean
+            ip:
+              type: boolean
+            certFingerprint:
+              type: boolean
+      required:
+        - allowed
+        - reason
+
+    Network:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        subnet:
+          type: string
+        port:
+          type: integer
+        protocol:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive]
+        deviceCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - subnet
+        - port
+        - protocol
+        - status
+        - createdAt
+
+    CreateNetworkInput:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        subnet:
+          type: string
+        port:
+          type: integer
+        protocol:
+          type: string
+      required:
+        - name
+        - subnet
+        - port
+        - protocol
+
+    GenerateOvpnInput:
+      type: object
+      properties:
+        deviceId:
+          type: integer
+        commonName:
+          type: string
+      required:
+        - deviceId
+        - commonName
+
+    OvpnConfig:
+      type: object
+      properties:
+        deviceId:
+          type: integer
+        networkId:
+          type: integer
+        commonName:
+          type: string
+        config:
+          type: string
+        generatedAt:
+          type: string
+          format: date-time
+      required:
+        - deviceId
+        - networkId
+        - commonName
+        - config
+        - generatedAt
+
+    FirewallRule:
+      type: object
+      properties:
+        id:
+          type: integer
+        networkId:
+          type: integer
+        deviceId:
+          type: integer
+        action:
+          type: string
+          enum: [allow, deny, drop]
+        sourceIp:
+          type: string
+        destIp:
+          type: string
+        sourcePort:
+          type: integer
+        destPort:
+          type: integer
+        protocol:
+          type: string
+          enum: [tcp, udp, icmp, any]
+        direction:
+          type: string
+          enum: [inbound, outbound, both]
+        priority:
+          type: integer
+        enabled:
+          type: boolean
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - action
+        - protocol
+        - direction
+        - priority
+        - enabled
+        - createdAt
+
+    CreateFirewallRuleInput:
+      type: object
+      properties:
+        networkId:
+          type: integer
+        deviceId:
+          type: integer
+        action:
+          type: string
+          enum: [allow, deny, drop]
+        sourceIp:
+          type: string
+        destIp:
+          type: string
+        sourcePort:
+          type: integer
+        destPort:
+          type: integer
+        protocol:
+          type: string
+          enum: [tcp, udp, icmp, any]
+        direction:
+          type: string
+          enum: [inbound, outbound, both]
+        priority:
+          type: integer
+        description:
+          type: string
+      required:
+        - action
+        - protocol
+        - direction
+        - priority
+
+    UpdateFirewallRuleInput:
+      type: object
+      properties:
+        action:
+          type: string
+          enum: [allow, deny, drop]
+        enabled:
+          type: boolean
+        priority:
+          type: integer
+        description:
+          type: string
+
+    IdsSignature:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        pattern:
+          type: string
+        category:
+          type: string
+          enum: [malware, portscan, bruteforce, dos, exploit, anomaly, custom]
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        action:
+          type: string
+          enum: [alert, block, drop]
+        enabled:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - pattern
+        - category
+        - severity
+        - action
+        - enabled
+        - createdAt
+
+    CreateIdsSignatureInput:
+      type: object
+      properties:
+        name:
+          type: string
+        pattern:
+          type: string
+        category:
+          type: string
+          enum: [malware, portscan, bruteforce, dos, exploit, anomaly, custom]
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        action:
+          type: string
+          enum: [alert, block, drop]
+      required:
+        - name
+        - pattern
+        - category
+        - severity
+        - action
+
+    IdsAlert:
+      type: object
+      properties:
+        id:
+          type: integer
+        signatureId:
+          type: integer
+        signatureName:
+          type: string
+        deviceId:
+          type: integer
+        deviceHostname:
+          type: string
+        sourceIp:
+          type: string
+        destIp:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        action:
+          type: string
+          enum: [alert, block, drop]
+        payload:
+          type: string
+        resolved:
+          type: boolean
+        resolvedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - severity
+        - action
+        - resolved
+        - createdAt
+
+    CreateIdsAlertInput:
+      type: object
+      properties:
+        signatureId:
+          type: integer
+        deviceId:
+          type: integer
+        sourceIp:
+          type: string
+        destIp:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        action:
+          type: string
+          enum: [alert, block, drop]
+        payload:
+          type: string
+      required:
+        - severity
+        - action
+
+    FileEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+        deviceId:
+          type: integer
+        deviceHostname:
+          type: string
+        userId:
+          type: integer
+        filePath:
+          type: string
+        action:
+          type: string
+          enum: [create, edit, delete, rename, view]
+        hashBefore:
+          type: string
+        hashAfter:
+          type: string
+        userSignature:
+          type: string
+        privilegesUsed:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - filePath
+        - action
+        - createdAt
+
+    CreateFileEventInput:
+      type: object
+      properties:
+        deviceId:
+          type: integer
+        userId:
+          type: integer
+        filePath:
+          type: string
+        action:
+          type: string
+          enum: [create, edit, delete, rename, view]
+        hashBefore:
+          type: string
+        hashAfter:
+          type: string
+        userSignature:
+          type: string
+        privilegesUsed:
+          type: string
+      required:
+        - filePath
+        - action
+
+    AuditLog:
+      type: object
+      properties:
+        id:
+          type: integer
+        eventId:
+          type: string
+        deviceId:
+          type: integer
+        deviceHostname:
+          type: string
+        userId:
+          type: integer
+        eventType:
+          type: string
+        details:
+          type: string
+        ipAddress:
+          type: string
+        macAddress:
+          type: string
+        severity:
+          type: string
+          enum: [info, warning, error, critical]
+        serverSignature:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - eventId
+        - eventType
+        - severity
+        - createdAt
+
+    Policy:
+      type: object
+      properties:
+        id:
+          type: integer
+        deviceId:
+          type: integer
+        userId:
+          type: integer
+        groupName:
+          type: string
+        resourcePath:
+          type: string
+        permissions:
+          type: object
+          properties:
+            view:
+              type: boolean
+            edit:
+              type: boolean
+            delete:
+              type: boolean
+            rename:
+              type: boolean
+            fullControl:
+              type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - resourcePath
+        - permissions
+        - createdAt
+
+    CreatePolicyInput:
+      type: object
+      properties:
+        deviceId:
+          type: integer
+        userId:
+          type: integer
+        groupName:
+          type: string
+        resourcePath:
+          type: string
+        permissions:
+          type: object
+          properties:
+            view:
+              type: boolean
+            edit:
+              type: boolean
+            delete:
+              type: boolean
+            rename:
+              type: boolean
+            fullControl:
+              type: boolean
+      required:
+        - resourcePath
+        - permissions
+
+    UpdatePolicyInput:
+      type: object
+      properties:
+        permissions:
+          type: object
+          properties:
+            view:
+              type: boolean
+            edit:
+              type: boolean
+            delete:
+              type: boolean
+            rename:
+              type: boolean
+            fullControl:
+              type: boolean

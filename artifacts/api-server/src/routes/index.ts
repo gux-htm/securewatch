@@ -1,0 +1,40 @@
+import { Router, type IRouter } from "express";
+import healthRouter from "./health";
+import devicesRouter from "./devices";
+import networksRouter from "./networks";
+import firewallRouter from "./firewall";
+import idsRouter from "./ids";
+import filesRouter from "./files";
+import auditRouter from "./audit";
+import policiesRouter from "./policies";
+import dashboardRouter from "./dashboard";
+import alertsRouter from "./alerts";
+import sessionsRouter from "./sessions";
+import accountsRouter from "./accounts";
+import groupsRouter from "./groups";
+import zonesRouter from "./zones";
+import resourcesRouter from "./resources";
+import settingsRouter from "./settings";
+import integrationsRouter from "./integrations";
+
+const router: IRouter = Router();
+
+router.use(healthRouter);
+router.use("/devices", devicesRouter);
+router.use("/networks", networksRouter);
+router.use("/firewall", firewallRouter);
+router.use("/ids", idsRouter);
+router.use("/files", filesRouter);
+router.use("/audit", auditRouter);
+router.use("/policies", policiesRouter);
+router.use("/dashboard", dashboardRouter);
+router.use("/alerts", alertsRouter);
+router.use("/sessions", sessionsRouter);
+router.use("/accounts", accountsRouter);
+router.use("/groups", groupsRouter);
+router.use("/zones", zonesRouter);
+router.use("/resources", resourcesRouter);
+router.use("/settings", settingsRouter);
+router.use("/integrations", integrationsRouter);
+
+export default router;

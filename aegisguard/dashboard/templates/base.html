@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}AegisGuard SOC{% endblock %}</title>
+
+  <!-- TailwindCSS CDN (replace with compiled build for production) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            aegis: {
+              900: '#0a0f1e', 800: '#0f172a', 700: '#1e293b',
+              600: '#334155', accent: '#06b6d4', warn: '#f59e0b',
+              danger: '#ef4444', ok: '#22c55e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- HTMX -->
+  <script src="https://unpkg.com/htmx.org@2.0.3" defer></script>
+
+  <!-- Chart.js (for dashboard widgets) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+
+  <style>
+    body { background-color: #0a0f1e; color: #e2e8f0; }
+    .sidebar-link { @apply flex items-center gap-2 px-4 py-2 rounded-lg text-slate-300 hover:bg-aegis-700 hover:text-white transition-colors; }
+    .sidebar-link.active { @apply bg-aegis-700 text-cyan-400 font-semibold; }
+    .card { @apply bg-aegis-800 border border-slate-700 rounded-xl p-5; }
+    .badge-critical { @apply bg-red-900 text-red-300 px-2 py-0.5 rounded text-xs font-bold; }
+    .badge-high     { @apply bg-orange-900 text-orange-300 px-2 py-0.5 rounded text-xs font-bold; }
+    .badge-medium   { @apply bg-yellow-900 text-yellow-300 px-2 py-0.5 rounded text-xs font-bold; }
+    .badge-low      { @apply bg-blue-900 text-blue-300 px-2 py-0.5 rounded text-xs font-bold; }
+    .badge-info     { @apply bg-slate-700 text-slate-300 px-2 py-0.5 rounded text-xs; }
+    .status-active   { @apply text-green-400; }
+    .status-inactive { @apply text-slate-400; }
+    .status-blocked  { @apply text-red-400; }
+    /* HTMX loading indicator */
+    .htmx-indicator { display: none; }
+    .htmx-request .htmx-indicator { display: inline-block; }
+  </style>
+</head>
+<body class="dark h-full">
+
+<!-- Top navigation bar -->
+<nav class="fixed top-0 left-0 right-0 z-50 h-14 bg-aegis-900 border-b border-slate-800 flex items-center justify-between px-6">
+  <div class="flex items-center gap-3">
+    <div class="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center font-bold text-black text-sm">AG</div>
+    <span class="font-bold text-white tracking-wide">AEGISGUARD</span>
+    <span class="text-xs text-slate-500 ml-1">Enterprise SOC</span>
+  </div>
+  <div class="flex items-center gap-4 text-sm text-slate-400">
+    <div id="ws-status" class="flex items-center gap-1.5">
+      <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" id="ws-dot"></div>
+      <span id="ws-label">Live</span>
+    </div>
+    <div class="border-l border-slate-700 pl-4">
+      <span class="text-slate-300">superadmin</span>
+      <a href="/api/v1/auth/logout" class="ml-3 text-red-400 hover:text-red-300">Logout</a>
+    </div>
+  </div>
+</nav>
+
+<div class="flex h-full pt-14">
+  <!-- Sidebar -->
+  <aside class="w-56 fixed left-0 top-14 bottom-0 bg-aegis-900 border-r border-slate-800 flex flex-col py-4 px-3 overflow-y-auto">
+    <nav class="space-y-0.5 flex-1">
+      <a href="/"              class="sidebar-link {% if active == 'dashboard' %}active{% endif %}">📊 Dashboard</a>
+      <a href="/devices"       class="sidebar-link {% if active == 'devices' %}active{% endif %}">💻 Devices</a>
+      <a href="/networks"      class="sidebar-link {% if active == 'networks' %}active{% endif %}">🌐 Networks (VPN)</a>
+      <a href="/firewall"      class="sidebar-link {% if active == 'firewall' %}active{% endif %}">🛡 Firewall</a>
+      <a href="/ids"           class="sidebar-link {% if active == 'ids' %}active{% endif %}">🔍 IDS / IPS</a>
+      <a href="/files"         class="sidebar-link {% if active == 'files' %}active{% endif %}">📁 File Monitor</a>
+      <a href="/audit"         class="sidebar-link {% if active == 'audit' %}active{% endif %}">📋 Audit Logs</a>
+      <a href="/policies"      class="sidebar-link {% if active == 'policies' %}active{% endif %}">🔑 Policies</a>
+    </nav>
+    <div class="pt-4 border-t border-slate-800 text-xs text-slate-600 px-2">
+      <div id="system-status" class="flex items-center gap-1.5">
+        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+        System Online
+      </div>
+      <div class="mt-1">v1.0.0</div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="flex-1 ml-56 p-6 min-h-screen overflow-y-auto">
+    <!-- Real-time alert banner (injected by WebSocket) -->
+    <div id="alert-banner" class="hidden mb-4 p-3 bg-red-900/50 border border-red-700 rounded-lg text-red-300 text-sm"></div>
+
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+<!-- WebSocket real-time alerts -->
+<script>
+(function() {
+  const proto  = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const wsUrl  = `${proto}//${location.host}/ws/alerts`;
+  const dot    = document.getElementById('ws-dot');
+  const label  = document.getElementById('ws-label');
+  const banner = document.getElementById('alert-banner');
+
+  function connect() {
+    const ws = new WebSocket(wsUrl);
+    ws.onopen = () => {
+      dot.classList.replace('bg-red-500', 'bg-green-500');
+      label.textContent = 'Live';
+    };
+    ws.onmessage = (e) => {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'alert') {
+        banner.textContent = `⚠ [${msg.severity?.toUpperCase()}] ${msg.title}: ${msg.message}`;
+        banner.classList.remove('hidden');
+        setTimeout(() => banner.classList.add('hidden'), 10000);
+      }
+    };
+    ws.onclose = () => {
+      dot.classList.replace('bg-green-500', 'bg-red-500');
+      label.textContent = 'Reconnecting...';
+      setTimeout(connect, 3000);
+    };
+  }
+  connect();
+})();
+</script>
+
+</body>
+</html>

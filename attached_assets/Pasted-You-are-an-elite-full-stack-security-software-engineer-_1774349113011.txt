@@ -1,0 +1,110 @@
+You are an elite full-stack security software engineer. Your task is to build the complete, production-ready software **AegisGuard** (Enterprise Unified Security Platform) from scratch exactly as specified below. Use modern, secure, auditable code. Deliver the full project in a single Git repository structure with clear folders and native installation scripts (no containers of any kind).
+
+**STRICT RULE – NO DOCKER, NO CONTAINERS, NO VIRTUALIZATION AT ANY LEVEL**  
+Docker, Podman, Kubernetes, or any container technology is completely banned. You must implement a native, bare-metal / direct-install deployment model only. Use virtual environments, systemd services (Linux), Windows Services (via NSSM or built-in), and simple bash/PowerShell install scripts. Provide a full `install.sh` (Linux) and `install.ps1` (Windows) that set up everything on a clean Ubuntu 22.04/24.04 server or Windows Server 2022/2025 machine.
+
+**Software Name:** AegisGuard  
+**Core Purpose:** A single, centralized security orchestration platform that combines the power of IPS + IDS + Firewall + System & File Monitoring + VPN Server + Digital Audit & Access Control. It protects servers, networks, databases, endpoints, and entire organizations. All traffic and actions are encrypted, audited, and policy-enforced.
+
+**High-Level Architecture (mandatory – native only)**
+- Central Management Server (FastAPI + PostgreSQL + Redis for real-time) installed directly on the host OS.
+- Lightweight Client Agents (Python daemon) installed on every protected Windows/Linux/macOS endpoint.
+- OpenVPN server instance fully managed by AegisGuard (Easy-RSA + ovpn file generation) running natively.
+- OpenSSL / cryptography library for all digital signatures, file hashing, and certificate management.
+- Web Dashboard (FastAPI + HTMX + TailwindCSS).
+- All communication between server ↔ agents and VPN is TLS 1.3 + mutual certificate authentication.
+
+**Must-Have Features (implement ALL of them – exactly as described)**
+
+1. **VPN Management (OpenVPN Integration)**
+   - Admin creates multiple isolated networks (e.g., IT-Network, Management-Network, Finance-Network).
+   - One-click generation of .ovpn files with embedded client certificates.
+   - Distribute .ovpn via dashboard (download or email).
+   - Policy: Employees can ONLY connect to the corporate network via the issued .ovpn file.
+
+2. **Pre-Connection Zero-Trust Verification**
+   - Before any device is allowed to join a network or communicate:
+     - Client agent sends its Digital Certificate (OpenSSL), MAC address, and current IP.
+     - Server verifies against registered device database.
+     - All three must match exactly → otherwise connection is rejected and alarm raised.
+
+3. **Centralized File & Resource Monitoring (Client Agent)**
+   - Admin defines "protected resources" (specific directories or files on any endpoint).
+   - Client agent (using watchdog + platform-specific hooks) monitors every create/edit/delete/rename/view event in real time.
+   - For every event:
+     - Compute SHA-256 hash of file (before & after change)
+     - Apply digital signature of the logged-in user (using their private key stored in agent keystore)
+     - Record: user digital signature, file hash, MAC, IP, timestamp, action type, privileges used
+   - All events are streamed securely to central server and stored immutably in PostgreSQL.
+
+4. **Privilege & Access Control Engine**
+   - Granular ACLs per user / group / device:
+     - File/Folder level: View | Edit | Delete | Rename | Full Control
+   - Privileges can only be changed through AegisGuard dashboard (no local OS bypass).
+   - Client agent enforces privileges in real time (block unauthorized actions + log attempt).
+   - Support for user groups (e.g., "IT-Admins", "Finance-Users").
+
+5. **Firewall Engine**
+   - Full stateful firewall rules (allow/deny by IP, port, protocol, MAC, user certificate).
+   - Rules can be applied at network level (server) or pushed to individual client agents.
+   - Live rule editor in dashboard with one-click apply.
+
+6. **IPS / IDS Engine**
+   - Signature-based detection (pre-loaded common attack patterns + custom rules).
+   - Anomaly-based detection (baseline learning of normal traffic/behavior per network).
+   - IPS mode: actively drop/block malicious packets/connections.
+   - Use Scapy + nfqueue (Linux) or WinDivert (Windows) for packet inspection and prevention.
+   - Real-time alerts with severity levels.
+
+7. **Audit & Forensics Layer (OpenSSL Powered)**
+   - Immutable audit trail for every security event.
+   - In case of breach/attack: system can instantly show that attacker credentials (IP + MAC + digital signature) do not match registered device → immediate isolation.
+   - Tamper-proof logs (signed with server master key).
+
+8. **Multi-Network & Multi-Tenant Support**
+   - Unlimited virtual networks with complete isolation.
+   - Role-based access for admins (Super Admin, Network Admin, Auditor, etc.).
+
+9. **Real-Time Dashboard & Alerting**
+   - Live map of all connected devices, VPN status, active threats.
+   - Instant notifications (email + in-app + optional Slack/Teams webhook) on anomalies, policy violations, or attacks.
+   - Searchable audit logs with filters and export (PDF/CSV with digital signatures).
+
+10. **Additional Security & Usability**
+    - All components run as non-root where possible.
+    - Automatic key rotation and certificate renewal.
+    - Backup & restore of entire configuration and audit database.
+    - Full logging and health monitoring of AegisGuard itself.
+
+**Non-Functional Requirements**
+- Performance: handle 500+ endpoints with <2s latency for events.
+- Security: zero-trust everywhere, least privilege, regular security self-audit.
+- Platform: Server = Ubuntu 22.04/24.04 LTS (native install). Clients = Windows 10/11, Ubuntu, macOS.
+- Language: Python 3.12 everywhere (FastAPI backend, client daemon).
+- Database: PostgreSQL 16 + SQLAlchemy 2.x + Alembic migrations (native service).
+- Crypto: cryptography + pyOpenSSL.
+- Monitoring: watchdog (cross-platform) + psutil.
+- Packet Engine: Scapy + nfqueue (Linux) / WinDivert (Windows).
+- UI: FastAPI + HTMX + TailwindCSS + Jinja2.
+- Testing: 90%+ unit + integration tests (pytest).
+- Documentation: Full README, API docs (Swagger), deployment guide, admin manual.
+
+**Implementation Order (follow exactly)**
+1. Project skeleton + native install scripts (install.sh / install.ps1) + database schema.
+2. OpenVPN management module + .ovpn generator + certificate authority.
+3. Client agent core (monitoring + reporting + enforcement).
+4. Zero-trust verification + privilege engine.
+5. Firewall + IPS/IDS packet engine.
+6. Web dashboard + real-time WebSocket alerts.
+7. Full audit & OpenSSL digital signature layer.
+8. Testing, security hardening, and final polish.
+
+**FINAL DELIVERABLE REQUIREMENT (MANDATORY – AFTER 100% COMPLETION)**  
+Once the entire software is fully developed and tested:
+- Perform a complete audit of the system.
+- Generate a detailed **AegisGuard_Final_Audit_Report.md** that lists every feature, its current implementation status, and exactly what the system can do right now.
+- At the very end of that report, write a comprehensive **User Story** written from the perspective of a Network Administrator. The story must start from the very beginning (first-time installation on a fresh server) and walk through every single feature end-to-end so that anyone reading it will have crystal-clear understanding of the full capabilities of AegisGuard.
+
+Begin by creating the repository structure and the native installation scripts (install.sh and install.ps1). After every major module, ask me for confirmation before proceeding to the next. Output clean, commented, secure code only. Do not use any external paid services or any form of containerization.
+
+Start coding now.
