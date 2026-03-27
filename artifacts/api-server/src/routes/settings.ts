@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+﻿import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { settingsTable, SETTINGS_KEYS } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
@@ -9,7 +9,7 @@ const DEFAULTS: Record<string, string> = {
   [SETTINGS_KEYS.ALERT_THRESHOLD]: "HIGH",
   [SETTINGS_KEYS.SESSION_TIMEOUT]: "60",
   [SETTINGS_KEYS.MFA_ENFORCED]: "false",
-  [SETTINGS_KEYS.TENANT_NAME]: "AegisGuard Enterprise SOC",
+  [SETTINGS_KEYS.TENANT_NAME]: "Oh-My-Guard! Enterprise SOC",
   [SETTINGS_KEYS.AUDIT_RETENTION]: "90",
   [SETTINGS_KEYS.WEBHOOK_URL]: "",
   [SETTINGS_KEYS.SMTP_HOST]: "",
