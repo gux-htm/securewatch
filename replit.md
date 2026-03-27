@@ -1,4 +1,4 @@
-# Workspace
+﻿# Workspace
 
 ## Overview
 
@@ -97,9 +97,9 @@ Utility scripts package. Each script is a `.ts` file in `src/` with a correspond
 
 ---
 
-## AegisGuard Python/FastAPI Native Implementation
+## Oh-My-Guard! Python/FastAPI Native Implementation
 
-A second, standalone implementation of AegisGuard lives in `aegisguard/` at the workspace root. This is a **bare-metal, Docker-free** Python implementation for deployment on Ubuntu 22.04/24.04 LTS or Windows Server 2022/2025.
+A second, standalone implementation of Oh-My-Guard! lives in `Oh-My-Guard!/` at the workspace root. This is a **bare-metal, Docker-free** Python implementation for deployment on Ubuntu 22.04/24.04 LTS or Windows Server 2022/2025.
 
 ### Python Stack
 - **Backend**: FastAPI + Uvicorn + SQLAlchemy 2.x + Alembic
@@ -113,13 +113,13 @@ A second, standalone implementation of AegisGuard lives in `aegisguard/` at the 
 - **Deployment**: systemd services (Linux), NSSM (Windows)
 
 ### Key Files
-- `aegisguard/install/install.sh` — Ubuntu 22.04/24.04 one-command installer
-- `aegisguard/install/install.ps1` — Windows Server 2022/2025 PowerShell installer
-- `aegisguard/server/main.py` — FastAPI application entry point
-- `aegisguard/database/models.py` — All SQLAlchemy models (devices, networks, firewall, IDS, files, audit)
-- `aegisguard/server/routers/devices.py` — Zero-trust triple verification (MAC + IP + cert fingerprint)
-- `aegisguard/agent/agent.py` — Full client daemon (watchdog + mTLS + policy enforcement)
-- `aegisguard/crypto/ca.py` — RSA-PSS CA + audit log signing/verification
-- `aegisguard/vpn/manager.py` — OpenVPN per-network instance management + .ovpn generation
-- `aegisguard/server/services/ids_engine.py` — Scapy IDS + NFQUEUE IPS with 12 built-in signatures
-- `aegisguard/AegisGuard_Final_Audit_Report.md` — Complete feature audit + Network Administrator user story
+- `Oh-My-Guard!/install/install.sh` — Ubuntu 22.04/24.04 one-command installer
+- `Oh-My-Guard!/install/install.ps1` — Windows Server 2022/2025 PowerShell installer
+- `Oh-My-Guard!/server/main.py` — FastAPI application entry point
+- `Oh-My-Guard!/database/models.py` — All SQLAlchemy models (devices, networks, firewall, IDS, files, audit)
+- `Oh-My-Guard!/server/routers/devices.py` — Zero-trust triple verification (MAC + IP + cert fingerprint)
+- `Oh-My-Guard!/agent/agent.py` — Full client daemon (watchdog + mTLS + policy enforcement)
+- `Oh-My-Guard!/crypto/ca.py` — RSA-PSS CA + audit log signing/verification
+- `Oh-My-Guard!/vpn/manager.py` — OpenVPN per-network instance management + .ovpn generation
+- `Oh-My-Guard!/server/services/ids_engine.py` — Scapy IDS + NFQUEUE IPS with 12 built-in signatures
+- `Oh-My-Guard!/Oh-My-Guard!_Final_Audit_Report.md` — Complete feature audit + Network Administrator user story

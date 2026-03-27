@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+﻿import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { accountsTable, insertAccountSchema } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
@@ -7,7 +7,7 @@ import { createHmac } from "crypto";
 const router: IRouter = Router();
 
 function hashPassword(pwd: string): string {
-  return createHmac("sha256", process.env.SESSION_SECRET || "aegisguard-secret").update(pwd).digest("hex");
+  return createHmac("sha256", process.env.SESSION_SECRET || "Oh-My-Guard!-secret").update(pwd).digest("hex");
 }
 
 router.get("/", async (req, res) => {

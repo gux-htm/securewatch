@@ -1,15 +1,15 @@
-You are an elite full-stack security software engineer. Your task is to build the complete, production-ready software **AegisGuard** (Enterprise Unified Security Platform) from scratch exactly as specified below. Use modern, secure, auditable code. Deliver the full project in a single Git repository structure with clear folders and native installation scripts (no containers of any kind).
+﻿You are an elite full-stack security software engineer. Your task is to build the complete, production-ready software **Oh-My-Guard!** (Enterprise Unified Security Platform) from scratch exactly as specified below. Use modern, secure, auditable code. Deliver the full project in a single Git repository structure with clear folders and native installation scripts (no containers of any kind).
 
 **STRICT RULE – NO DOCKER, NO CONTAINERS, NO VIRTUALIZATION AT ANY LEVEL**  
 Docker, Podman, Kubernetes, or any container technology is completely banned. You must implement a native, bare-metal / direct-install deployment model only. Use virtual environments, systemd services (Linux), Windows Services (via NSSM or built-in), and simple bash/PowerShell install scripts. Provide a full `install.sh` (Linux) and `install.ps1` (Windows) that set up everything on a clean Ubuntu 22.04/24.04 server or Windows Server 2022/2025 machine.
 
-**Software Name:** AegisGuard  
+**Software Name:** Oh-My-Guard!
 **Core Purpose:** A single, centralized security orchestration platform that combines the power of IPS + IDS + Firewall + System & File Monitoring + VPN Server + Digital Audit & Access Control. It protects servers, networks, databases, endpoints, and entire organizations. All traffic and actions are encrypted, audited, and policy-enforced.
 
 **High-Level Architecture (mandatory – native only)**
 - Central Management Server (FastAPI + PostgreSQL + Redis for real-time) installed directly on the host OS.
 - Lightweight Client Agents (Python daemon) installed on every protected Windows/Linux/macOS endpoint.
-- OpenVPN server instance fully managed by AegisGuard (Easy-RSA + ovpn file generation) running natively.
+- OpenVPN server instance fully managed by Oh-My-Guard! (Easy-RSA + ovpn file generation) running natively.
 - OpenSSL / cryptography library for all digital signatures, file hashing, and certificate management.
 - Web Dashboard (FastAPI + HTMX + TailwindCSS).
 - All communication between server ↔ agents and VPN is TLS 1.3 + mutual certificate authentication.
@@ -40,7 +40,7 @@ Docker, Podman, Kubernetes, or any container technology is completely banned. Yo
 4. **Privilege & Access Control Engine**
    - Granular ACLs per user / group / device:
      - File/Folder level: View | Edit | Delete | Rename | Full Control
-   - Privileges can only be changed through AegisGuard dashboard (no local OS bypass).
+   - Privileges can only be changed through Oh-My-Guard! dashboard (no local OS bypass).
    - Client agent enforces privileges in real time (block unauthorized actions + log attempt).
    - Support for user groups (e.g., "IT-Admins", "Finance-Users").
 
@@ -74,7 +74,7 @@ Docker, Podman, Kubernetes, or any container technology is completely banned. Yo
     - All components run as non-root where possible.
     - Automatic key rotation and certificate renewal.
     - Backup & restore of entire configuration and audit database.
-    - Full logging and health monitoring of AegisGuard itself.
+    - Full logging and health monitoring of Oh-My-Guard! itself.
 
 **Non-Functional Requirements**
 - Performance: handle 500+ endpoints with <2s latency for events.
@@ -102,8 +102,8 @@ Docker, Podman, Kubernetes, or any container technology is completely banned. Yo
 **FINAL DELIVERABLE REQUIREMENT (MANDATORY – AFTER 100% COMPLETION)**  
 Once the entire software is fully developed and tested:
 - Perform a complete audit of the system.
-- Generate a detailed **AegisGuard_Final_Audit_Report.md** that lists every feature, its current implementation status, and exactly what the system can do right now.
-- At the very end of that report, write a comprehensive **User Story** written from the perspective of a Network Administrator. The story must start from the very beginning (first-time installation on a fresh server) and walk through every single feature end-to-end so that anyone reading it will have crystal-clear understanding of the full capabilities of AegisGuard.
+- Generate a detailed **Oh-My-Guard!_Final_Audit_Report.md** that lists every feature, its current implementation status, and exactly what the system can do right now.
+- At the very end of that report, write a comprehensive **User Story** written from the perspective of a Network Administrator. The story must start from the very beginning (first-time installation on a fresh server) and walk through every single feature end-to-end so that anyone reading it will have crystal-clear understanding of the full capabilities of Oh-My-Guard!.
 
 Begin by creating the repository structure and the native installation scripts (install.sh and install.ps1). After every major module, ask me for confirmation before proceeding to the next. Output clean, commented, secure code only. Do not use any external paid services or any form of containerization.
 

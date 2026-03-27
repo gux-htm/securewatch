@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Oh-My-Guard! Security Platform"
+version = "1.0.0"
+id = "artifacts/Oh-My-Guard!"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20704
+
+[services.development]
+run = "pnpm --filter @workspace/Oh-My-Guard! run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/Oh-My-Guard!", "run", "build" ]
+publicDir = "artifacts/Oh-My-Guard!/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20704"
+BASE_PATH = "/"
