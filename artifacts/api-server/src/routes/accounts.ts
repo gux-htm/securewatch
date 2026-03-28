@@ -3,11 +3,13 @@ import { db } from "@workspace/db";
 import { accountsTable, insertAccountSchema } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 import { createHmac } from "crypto";
+import bcrypt from "bcrypt";
 
 const router: IRouter = Router();
 
-function hashPassword(pwd: string): string {
-  return createHmac("sha256", process.env.SESSION_SECRET || "Oh-My-Guard!-secret").update(pwd).digest("hex");
+async function hashPassword(pwd: string): Promise<string> {
+  const saltRounds = 12;
+  return bcrypt.hash(pwd, saltRounds);
 }
 
 router.get("/", async (req, res) => {
@@ -34,7 +36,7 @@ router.post("/", async (req, res) => {
   try {
     const { password, ...rest } = req.body;
     if (!password) return res.status(400).json({ error: "password is required" });
-    const data = { ...rest, passwordHash: hashPassword(password) };
+    const data = { ...rest, passwordHash: await hashPassword(password) };
     const parsed = insertAccountSchema.safeParse(data);
     if (!parsed.success) return res.status(400).json({ error: parsed.error.message });
     const [account] = await db.insert(accountsTable).values(parsed.data).returning({
