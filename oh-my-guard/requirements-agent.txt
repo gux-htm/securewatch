@@ -14,7 +14,7 @@ watchdog==6.0.0
 psutil==6.1.0
 
 # ── Packet Inspection (IDS/IPS) ───────────────────────────
-scapy==2.6.1
+scapy==2.7.0rc1
 # netfilterqueue==1.1.0  # Linux only
 
 # ── Data / Config ─────────────────────────────────────────
