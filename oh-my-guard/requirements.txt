@@ -22,7 +22,7 @@ aioredis==2.0.1
 
 # ── Cryptography ──────────────────────────────────────────
 cryptography==46.0.6
-pyopenssl==24.3.0
+pyopenssl==26.0.0
 
 # ── File Monitoring ───────────────────────────────────────
 watchdog==6.0.0
