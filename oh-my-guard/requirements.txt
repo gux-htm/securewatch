@@ -67,5 +67,5 @@ safety==3.2.14
 mypy==1.14.0
 black==26.3.1
 isort==5.13.2
-pyasn1>=0.6.2 # not directly required, pinned by Snyk to avoid a vulnerability
+pyasn1>=0.6.3 # not directly required, pinned by Snyk to avoid a vulnerability
 zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
