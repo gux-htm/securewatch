@@ -19,6 +19,18 @@ let _baseUrl: string | null = null;
 let _authTokenGetter: AuthTokenGetter | null = null;
 
 /**
+ * Removes trailing slashes from a string without using regex.
+ * This avoids potential ReDoS vulnerabilities with polynomial regex patterns.
+ */
+function trimTrailingSlashes(str: string): string {
+  let end = str.length;
+  while (end > 0 && str[end - 1] === "/") {
+    end--;
+  }
+  return end === str.length ? str : str.slice(0, end);
+}
+
+/**
  * Set a base URL that is prepended to every relative request URL
  * (i.e. paths that start with `/`).
  *
@@ -26,7 +38,7 @@ let _authTokenGetter: AuthTokenGetter | null = null;
  * Pass `null` to clear the base URL.
  */
 export function setBaseUrl(url: string | null): void {
-  _baseUrl = url ? url.replace(/\/+$/, "") : null;
+  _baseUrl = url ? trimTrailingSlashes(url) : null;
 }
 
 /**
