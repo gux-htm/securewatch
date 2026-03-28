@@ -1,4 +1,4 @@
-﻿# Oh-My-Guard! Client Agent – Minimal Python 3.12 Dependencies
+# Oh-My-Guard! Client Agent – Minimal Python 3.12 Dependencies
 # Install with: pip install -r requirements-agent.txt
 
 # ── Networking ────────────────────────────────────────────
@@ -6,7 +6,7 @@ websockets==14.1
 httpx==0.28.1
 
 # ── Cryptography ──────────────────────────────────────────
-cryptography==44.0.0
+cryptography==46.0.6
 pyopenssl==24.3.0
 
 # ── File Monitoring ───────────────────────────────────────

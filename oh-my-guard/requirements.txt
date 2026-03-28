@@ -21,7 +21,7 @@ redis==5.2.1
 aioredis==2.0.1
 
 # ── Cryptography ──────────────────────────────────────────
-cryptography==44.0.0
+cryptography==46.0.6
 pyopenssl==24.3.0
 
 # ── File Monitoring ───────────────────────────────────────
