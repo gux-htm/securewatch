@@ -200,20 +200,7 @@ def generate_client_ovpn(
         <tls-auth>
         {ta_key.strip()}
         </tls-auth>
-    """)
-    return ovpn
-        {cert_pem.strip()}
-        </cert>
-
-        <key>
-        {key_pem.strip()}
-        </key>
-
-        <tls-auth>
-        {ta_key.strip()}
-        </tls-auth>
-    """
-
+    """ )
     return ovpn
 
 
