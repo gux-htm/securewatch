@@ -173,7 +173,8 @@ class AegisFileHandler(FileSystemEventHandler):
         self.event_queue  = event_queue
         self.policy_cache = policy_cache  # {path: {"view":T, "edit":F, ...}}
 
-    def _action_for_event(self, event_type: str) -> str:
+    @staticmethod
+    def _action_for_event(event_type: str) -> str:
         mapping = {
             "created":  "create",
             "modified": "edit",

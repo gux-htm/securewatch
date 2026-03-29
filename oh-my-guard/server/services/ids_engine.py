@@ -69,6 +69,7 @@ class TrafficBaseline:
     port_set: set     = field(default_factory=set)
     start_time: float = field(default_factory=time.time)
 
+
     def packets_per_sec(self) -> float:
         elapsed = max(time.time() - self.start_time, 0.001)
         return self.packet_count / elapsed
@@ -93,7 +94,8 @@ class IdsEngine:
         self.baselines: dict[str, TrafficBaseline] = defaultdict(TrafficBaseline)
         self.running    = False
 
-    def _compile_signatures(self) -> list[dict]:
+    @staticmethod
+    def _compile_signatures() -> list[dict]:
         """Pre-compile all regex patterns for efficiency."""
         compiled = []
         for sig in BUILTIN_SIGNATURES:
