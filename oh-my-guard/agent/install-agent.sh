@@ -55,7 +55,7 @@ chmod 400 "$CONF_DIR/client.key"
 
 # ── Register device on server & get signed cert ───────────────────────────────
 info "Registering device on Oh-My-Guard! server..."
-MAC=$(cat /sys/class/net/$(ip route | awk '/default/ {print $5}')/address 2>/dev/null || echo "00:00:00:00:00:00")
+MAC=$(cat "/sys/class/net/$(ip route | awk '/default/ {print $5}')/address" 2>/dev/null || echo "00:00:00:00:00:00")
 IP=$(hostname -I | awk '{print $1}')
 
 REGISTER_RESPONSE=$(curl -sf -X POST "$AEGIS_SERVER/api/v1/devices/" \
