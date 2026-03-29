@@ -1,9 +1,9 @@
-"""IDS/IPS Router – signatures, alerts, and anomaly management."""
+"""IDS/IPS Router 	6 signatures, alerts, and anomaly management."""
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.models import IdsAlert, IdsSignature, IdsSeverity, IdsCategory, IdsAction

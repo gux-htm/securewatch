@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.models import AuditLog, Device, DeviceStatus, FileEvent, IdsAlert, Network
+from database.models import Device, DeviceStatus, FileEvent, IdsAlert, Network
 from database.session import get_db
 from server.middlewares.auth import require_role
 
