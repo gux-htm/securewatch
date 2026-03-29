@@ -134,6 +134,7 @@ export function hasNoBody(response: Response, method: string): boolean {
 }
 
 (function() {
+  // empty because this IIFE is used to isolate scope
 })();
 
 export function looksLikeJson(text: string): boolean {
