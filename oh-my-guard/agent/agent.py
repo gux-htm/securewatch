@@ -91,8 +91,7 @@ def sha256_file(path: str) -> str | None:
 def get_mac_address() -> str:
     """Get the primary network interface MAC address."""
     try:
-        import uuid as _uuid
-        mac = _uuid.getnode()
+        mac = uuid.getnode()
         return ":".join(("%012X" % mac)[i:i+2] for i in range(0, 12, 2))
     except Exception:
         return "00:00:00:00:00:00"
