@@ -177,29 +177,29 @@ def generate_client_ovpn(
         remote {server_ip} {port}
         resolv-retry infinite
         nobind
-        persist-key
-        persist-tun
-        remote-cert-tls server
-        cipher AES-256-GCM
-        auth SHA256
-    tls-version-min 1.3
-    key-direction 1
-    verb 3
+    persist-key
+    persist-tun
+    remote-cert-tls server
+    cipher AES-256-GCM
+    auth SHA256
+tls-version-min 1.3
+key-direction 1
+verb 3
 
-    <ca>
-    {ca_pem.strip()}
-    </ca>
+<ca>
+{ca_pem.strip()}
+</ca>
 
-    <cert>
-    {cert_pem.strip()}
-    </cert>
+<cert>
+{cert_pem.strip()}
+</cert>
 
-    <key>
-    {key_pem.strip()}
-    </key>
+<key>
+{key_pem.strip()}
+</key>
 
-    <tls-auth>
-    {ta_key.strip()}
-    </tls-auth>
+<tls-auth>
+{ta_key.strip()}
+</tls-auth>
 """ )
 return ovpn
