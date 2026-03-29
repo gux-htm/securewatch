@@ -32,7 +32,7 @@ from server.services.startup import initialize_superadmin, preload_ids_signature
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_app: FastAPI):
     """Startup and shutdown logic."""
     logger.info("Oh-My-Guard! starting up...")
     await initialize_superadmin()
