@@ -327,6 +327,10 @@ async function parseSuccessBody(
         );
       }
       return response.blob();
+
+    default:
+      // Optional: Add code for default behavior here
+      break;
   }
   return null;
 }
