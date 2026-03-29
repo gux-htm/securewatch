@@ -20,6 +20,15 @@ if config.config_file_name is not None:
     root_logger = logging.getLogger()
     if root_logger.level < logging.INFO:
         root_logger.setLevel(logging.INFO)
+    # Enforce secure logging format and file permissions
+    secure_formatter = logging.Formatter('%(asctime)s %(levelname)s %(name)s: %(message)s')
+    for handler in root_logger.handlers:
+        handler.setFormatter(secure_formatter)
+        if isinstance(handler, logging.FileHandler):
+            try:
+                os.chmod(handler.baseFilename, 0o600)
+            except OSError:
+                pass
 
 target_metadata = Base.metadata
 
