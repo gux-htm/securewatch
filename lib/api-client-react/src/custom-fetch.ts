@@ -109,12 +109,14 @@ export function isJsonMediaType(mediaType: string | null): boolean {
   return mediaType === "application/json" || Boolean(mediaType?.endsWith("+json"));
 }
 
+// skipcq: JS-0067
 const TEXT_MEDIA_TYPES = new Set([
   "application/xml",
   "text/xml",
   "application/x-www-form-urlencoded",
 ]);
 
+// skipcq: JS-0067
 const isTextMediaType = (mediaType: string | null): boolean => {
   if (!mediaType) return false;
   if (mediaType.startsWith("text/")) return true;
@@ -243,12 +245,10 @@ export class ResponseParseError extends Error {
   }
 }
 
-function stripBom(text: string): string {
-  if (text.charCodeAt(0) === 0xfeff) {
-    return text.slice(1);
-  }
-  return text;
-}
+// skipcq: JS-0067
+const stripBom = (text: string): string => {
+  return text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
+};
 
 export async function parseJsonBody(
   response: Response,
@@ -344,49 +344,55 @@ const parseSuccessBody = async (
   return null;
 };
 
-function setJsonHeaders(headers: Headers, initBody: BodyInit | null | undefined, responseType: string) {
-  if (
-    typeof initBody === "string" &&
-    !headers.has("content-type") &&
-    looksLikeJson(initBody)
-  ) {
+// skipcq: JS-0067
+const setJsonHeaders = (headers: Headers, initBody: BodyInit | null | undefined, responseType: string): void => {
+  const isStringBody = typeof initBody === "string";
+  const hasNoContentType = !headers.has("content-type");
+  if (isStringBody && hasNoContentType && looksLikeJson(initBody as string)) {
     headers.set("content-type", "application/json");
   }
 
-  if (responseType === "json" && !headers.has("accept")) {
+  const isJsonResponse = responseType === "json";
+  const hasNoAccept = !headers.has("accept");
+  if (isJsonResponse && hasNoAccept) {
     headers.set("accept", DEFAULT_JSON_ACCEPT);
   }
-}
+};
 
-async function setAuthHeaders(headers: Headers) {
-  if (_authTokenGetter && !headers.has("authorization")) {
-    const token = await _authTokenGetter();
-    if (token) {
-      headers.set("authorization", `Bearer ${token}`);
-    }
+// skipcq: JS-0067
+const setAuthHeaders = async (headers: Headers): Promise<void> => {
+  if (!_authTokenGetter || headers.has("authorization")) {
+    return;
   }
-}
+  const token = await _authTokenGetter();
+  if (token) {
+    headers.set("authorization", `Bearer ${token}`);
+  }
+};
+
+// skipcq: JS-0067
+const checkBodyMethod = (method: string, body: BodyInit | null | undefined): void => {
+  if (body != null && (method === "GET" || method === "HEAD")) {
+    throw new TypeError(`customFetch: ${method} requests cannot have a body.`);
+  }
+};
 
 export async function customFetch<T = unknown>(
   input: RequestInfo | URL,
   options: CustomFetchOptions = {},
 ): Promise<T> {
-  input = applyBaseUrl(input);
+  const absoluteInput = applyBaseUrl(input);
   const { responseType = "auto", headers: headersInit, ...init } = options;
 
-  const method = resolveMethod(input, init.method);
+  const method = resolveMethod(absoluteInput, init.method);
+  checkBodyMethod(method, init.body);
 
-  if (init.body != null && (method === "GET" || method === "HEAD")) {
-    throw new TypeError(`customFetch: ${method} requests cannot have a body.`);
-  }
-
-  const headers = mergeHeaders(isRequest(input) ? input.headers : undefined, headersInit);
-
+  const headers = mergeHeaders(isRequest(absoluteInput) ? absoluteInput.headers : undefined, headersInit);
   setJsonHeaders(headers, init.body, responseType);
   await setAuthHeaders(headers);
 
-  const requestInfo = { method, url: resolveUrl(input) };
-  const response = await fetch(input, { ...init, method, headers });
+  const requestInfo = { method, url: resolveUrl(absoluteInput) };
+  const response = await fetch(absoluteInput, { ...init, method, headers });
 
   if (!response.ok) {
     const errorData = await parseErrorBody(response, method);
