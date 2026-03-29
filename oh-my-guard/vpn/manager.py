@@ -200,9 +200,9 @@ def generate_client_ovpn(
         <tls-auth>
         {ta_key.strip()}
         </tls-auth>
-    """)
+    ")
 
-    return ovpn, fingerprint
+    return ovpn
 
 
 def get_vpn_status(network_id: int) -> dict:
