@@ -177,6 +177,7 @@ def generate_client_ovpn(
         remote {server_ip} {port}
         resolv-retry infinite
         nobind
+ovpn = (f"""
     persist-key
     persist-tun
     remote-cert-tls server
