@@ -134,9 +134,6 @@ export function hasNoBody(response: Response, method: string): boolean {
 }
 
 (function() {
-  function stripBom(text: string): string {
-    return text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
-  }
 })();
 
 export function looksLikeJson(text: string): boolean {
