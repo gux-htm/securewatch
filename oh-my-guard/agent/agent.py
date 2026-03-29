@@ -92,7 +92,7 @@ def get_mac_address() -> str:
     """Get the primary network interface MAC address."""
     try:
         mac = uuid.getnode()
-        return ":".join(("%012X" % mac)[i:i+2] for i in range(0, 12, 2))
+        return ":".join(f"{mac:012X}"[i:i+2] for i in range(0, 12, 2))
     except Exception:
         return "00:00:00:00:00:00"
 
