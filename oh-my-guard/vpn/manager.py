@@ -36,7 +36,7 @@ def create_network_vpn(network_id: int, name: str, subnet: str, port: int, proto
 
     # Generate server certificate for this network
     server_cn = f"Oh-My-Guard!-vpn-{network_id}"
-    cert_pem, key_pem, fingerprint = issue_client_cert(server_cn, days=3650)
+    cert_pem, key_pem, _ = issue_client_cert(server_cn, days=3650)
 
     (vpn_dir / "server.crt").write_text(cert_pem)
     (vpn_dir / "server.key").write_text(key_pem)
@@ -134,6 +134,7 @@ def _install_vpn_service(network_id: int, conf_path: Path) -> None:
     subprocess.run(["systemctl", "enable", "--now", service_name], check=False)
 
 
+
 def stop_network_vpn(network_id: int) -> None:
     """Stop and disable the OpenVPN instance for a network."""
     service = f"Oh-My-Guard!-vpn@{network_id}"
@@ -158,7 +159,7 @@ def generate_client_ovpn(
     vpn_dir = _vpn_dir(network_id)
 
     # Issue a new client certificate
-    cert_pem, key_pem, fingerprint = issue_client_cert(common_name, days=365)
+    cert_pem, key_pem, _ = issue_client_cert(common_name, days=365)
 
     # Read embedded blobs
     ca_pem = Path(settings.aegis_ca_cert).read_text()
@@ -184,6 +185,7 @@ def generate_client_ovpn(
         tls-version-min 1.3
         key-direction 1
         verb 3
+"""
 
         <ca>
         {ca_pem.strip()}
