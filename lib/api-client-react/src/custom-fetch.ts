@@ -22,13 +22,13 @@ let _authTokenGetter: AuthTokenGetter | null = null;
  * Removes trailing slashes from a string without using regex.
  * This avoids potential ReDoS vulnerabilities with polynomial regex patterns.
  */
-function trimTrailingSlashes(str: string): string {
+const trimTrailingSlashes = (str: string): string => {
   let end = str.length;
   while (end > 0 && str[end - 1] === "/") {
     end--;
   }
   return end === str.length ? str : str.slice(0, end);
-}
+};
 
 /**
  * Set a base URL that is prepended to every relative request URL
@@ -53,11 +53,11 @@ export function setAuthTokenGetter(getter: AuthTokenGetter | null): void {
   _authTokenGetter = getter;
 }
 
-function isRequest(input: RequestInfo | URL): input is Request {
+export function isRequest(input: RequestInfo | URL): input is Request {
   return typeof Request !== "undefined" && input instanceof Request;
 }
 
-function resolveMethod(input: RequestInfo | URL, explicitMethod?: string): string {
+export function resolveMethod(input: RequestInfo | URL, explicitMethod?: string): string {
   if (explicitMethod) return explicitMethod.toUpperCase();
   if (isRequest(input)) return input.method.toUpperCase();
   return "GET";
@@ -65,11 +65,11 @@ function resolveMethod(input: RequestInfo | URL, explicitMethod?: string): strin
 
 // Use loose check for URL — some runtimes (e.g. React Native) polyfill URL
 // differently, so `instanceof URL` can fail.
-function isUrl(input: RequestInfo | URL): input is URL {
+export function isUrl(input: RequestInfo | URL): input is URL {
   return typeof URL !== "undefined" && input instanceof URL;
 }
 
-function applyBaseUrl(input: RequestInfo | URL): RequestInfo | URL {
+export function applyBaseUrl(input: RequestInfo | URL): RequestInfo | URL {
   if (!_baseUrl) return input;
   const url = resolveUrl(input);
   // Only prepend to relative paths (starting with /)
@@ -81,13 +81,13 @@ function applyBaseUrl(input: RequestInfo | URL): RequestInfo | URL {
   return new Request(absolute, input as Request);
 }
 
-function resolveUrl(input: RequestInfo | URL): string {
+export function resolveUrl(input: RequestInfo | URL): string {
   if (typeof input === "string") return input;
   if (isUrl(input)) return input.toString();
   return input.url;
 }
 
-function mergeHeaders(...sources: Array<HeadersInit | undefined>): Headers {
+export function mergeHeaders(...sources: Array<HeadersInit | undefined>): Headers {
   const headers = new Headers();
 
   for (const source of sources) {
@@ -100,16 +100,16 @@ function mergeHeaders(...sources: Array<HeadersInit | undefined>): Headers {
   return headers;
 }
 
-function getMediaType(headers: Headers): string | null {
+export function getMediaType(headers: Headers): string | null {
   const value = headers.get("content-type");
   return value ? value.split(";", 1)[0].trim().toLowerCase() : null;
 }
 
-function isJsonMediaType(mediaType: string | null): boolean {
+export function isJsonMediaType(mediaType: string | null): boolean {
   return mediaType === "application/json" || Boolean(mediaType?.endsWith("+json"));
 }
 
-function isTextMediaType(mediaType: string | null): boolean {
+const isTextMediaType = (mediaType: string | null): boolean => {
   return Boolean(
     mediaType &&
       (mediaType.startsWith("text/") ||
@@ -118,7 +118,7 @@ function isTextMediaType(mediaType: string | null): boolean {
         mediaType.endsWith("+xml") ||
         mediaType === "application/x-www-form-urlencoded"),
   );
-}
+};
 
 // Use strict equality: in browsers, `response.body` is `null` when the
 // response genuinely has no content.  In React Native, `response.body` is
@@ -126,23 +126,25 @@ function isTextMediaType(mediaType: string | null): boolean {
 // even when the response carries a full payload readable via `.text()` or
 // `.json()`.  Loose equality (`== null`) matches both `null` and `undefined`,
 // which causes every React Native response to be treated as empty.
-function hasNoBody(response: Response, method: string): boolean {
+export function hasNoBody(response: Response, method: string): boolean {
   return method === "HEAD" ||
     NO_BODY_STATUS.has(response.status) ||
     response.headers.get("content-length") === "0" ||
     response.body === null;
 }
 
-function stripBom(text: string): string {
-  return text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
-}
+(function() {
+  function stripBom(text: string): string {
+    return text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
+  }
+})();
 
-function looksLikeJson(text: string): boolean {
+export function looksLikeJson(text: string): boolean {
   const trimmed = text.trimStart();
   return trimmed.startsWith("{") || trimmed.startsWith("[");
 }
 
-function getStringField(value: unknown, key: string): string | undefined {
+export function getStringField(value: unknown, key: string): string | undefined {
   if (!value || typeof value !== "object") return undefined;
 
   const candidate = (value as Record<string, unknown>)[key];
@@ -152,11 +154,11 @@ function getStringField(value: unknown, key: string): string | undefined {
   return trimmed === "" ? undefined : trimmed;
 }
 
-function truncate(text: string, maxLength = 300): string {
+export function truncate(text: string, maxLength = 300): string {
   return text.length > maxLength ? `${text.slice(0, maxLength - 1)}…` : text;
 }
 
-function buildErrorMessage(response: Response, data: unknown): string {
+export function buildErrorMessage(response: Response, data: unknown): string {
   const prefix = `HTTP ${response.status} ${response.statusText}`;
 
   if (typeof data === "string") {
@@ -241,7 +243,7 @@ export class ResponseParseError extends Error {
   }
 }
 
-async function parseJsonBody(
+export async function parseJsonBody(
   response: Response,
   requestInfo: { method: string; url: string },
 ): Promise<unknown> {
@@ -259,7 +261,7 @@ async function parseJsonBody(
   }
 }
 
-async function parseErrorBody(response: Response, method: string): Promise<unknown> {
+export async function parseErrorBody(response: Response, method: string): Promise<unknown> {
   if (hasNoBody(response, method)) {
     return null;
   }
@@ -290,7 +292,7 @@ async function parseErrorBody(response: Response, method: string): Promise<unkno
   return raw;
 }
 
-function inferResponseType(response: Response): "json" | "text" | "blob" {
+export function inferResponseType(response: Response): "json" | "text" | "blob" {
   const mediaType = getMediaType(response.headers);
 
   if (isJsonMediaType(mediaType)) return "json";
@@ -298,11 +300,11 @@ function inferResponseType(response: Response): "json" | "text" | "blob" {
   return "blob";
 }
 
-async function parseSuccessBody(
+const parseSuccessBody = async (
   response: Response,
   responseType: "json" | "text" | "blob" | "auto",
   requestInfo: { method: string; url: string },
-): Promise<unknown> {
+): Promise<unknown> => {
   if (hasNoBody(response, requestInfo.method)) {
     return null;
   }
@@ -333,7 +335,7 @@ async function parseSuccessBody(
       break;
   }
   return null;
-}
+};
 
 export async function customFetch<T = unknown>(
   input: RequestInfo | URL,
