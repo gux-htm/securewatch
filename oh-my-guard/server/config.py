@@ -1,5 +1,5 @@
 ﻿"""
-Oh-My-Guard! – Server Configuration (Pydantic Settings)
+Oh-My-Guard! 	6 Server Configuration (Pydantic Settings)
 All values loaded from environment variables or .env file.
 Secrets must NEVER be hard-coded here.
 """
@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     )
 
     # Server
-    aegis_host: str               = Field("0.0.0.0", alias="AEGIS_HOST")
+    aegis_host: str               = Field("127.0.0.1", alias="AEGIS_HOST")
     aegis_port: int               = Field(8443,       alias="AEGIS_PORT")
     aegis_tls_cert: str           = Field(...,        alias="AEGIS_TLS_CERT")
     aegis_tls_key: str            = Field(...,        alias="AEGIS_TLS_KEY")
