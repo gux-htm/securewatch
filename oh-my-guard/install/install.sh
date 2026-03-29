@@ -362,7 +362,11 @@ start_services() {
     info "Starting Oh-My-Guard! services..."
     systemctl start Oh-My-Guard!
     sleep 3
-    systemctl is-active Oh-My-Guard! && info "Oh-My-Guard! server started ✓" || warn "Oh-My-Guard! failed to start – check: journalctl -u Oh-My-Guard!"
+    if systemctl is-active Oh-My-Guard! >/dev/null 2>&1; then
+        info "Oh-My-Guard! server started ✓"
+    else
+        warn "Oh-My-Guard! failed to start – check: journalctl -u Oh-My-Guard!"
+    fi
     systemctl start Oh-My-Guard!-ids
 }
 
