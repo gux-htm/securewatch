@@ -249,7 +249,7 @@ At the end, the terminal prints:
 ```
   Dashboard URL  : https://10.0.1.5:8443
   Username       : superadmin
-  Password       : xK9!mQrV2pL8wN3j
+  Password       : <REDACTED>
 ```
 
 Marcus opens the dashboard, logs in, and immediately changes the password from the Settings page. The dark-themed Security Operations Center dashboard greets him with live stats: 0 devices, 0 networks, 0 alerts.

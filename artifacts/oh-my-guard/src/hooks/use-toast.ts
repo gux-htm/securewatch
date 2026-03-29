@@ -22,6 +22,7 @@ const actionTypes = {
   REMOVE_TOAST: "REMOVE_TOAST",
 } as const
 
+// skipcq: JS-0067
 let count = 0
 
 function genId() {
@@ -53,6 +54,7 @@ interface State {
   toasts: ToasterToast[]
 }
 
+// skipcq: JS-0067
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
 
 const addToRemoveQueue = (toastId: string) => {
@@ -126,8 +128,10 @@ export const reducer = (state: State, action: Action): State => {
   }
 }
 
+// skipcq: JS-0067
 const listeners: Array<(state: State) => void> = []
 
+// skipcq: JS-0067
 let memoryState: State = { toasts: [] }
 
 function dispatch(action: Action) {

@@ -109,15 +109,17 @@ export function isJsonMediaType(mediaType: string | null): boolean {
   return mediaType === "application/json" || Boolean(mediaType?.endsWith("+json"));
 }
 
+const TEXT_MEDIA_TYPES = new Set([
+  "application/xml",
+  "text/xml",
+  "application/x-www-form-urlencoded",
+]);
+
 const isTextMediaType = (mediaType: string | null): boolean => {
-  return Boolean(
-    mediaType &&
-      (mediaType.startsWith("text/") ||
-        mediaType === "application/xml" ||
-        mediaType === "text/xml" ||
-        mediaType.endsWith("+xml") ||
-        mediaType === "application/x-www-form-urlencoded"),
-  );
+  if (!mediaType) return false;
+  if (mediaType.startsWith("text/")) return true;
+  if (mediaType.endsWith("+xml")) return true;
+  return TEXT_MEDIA_TYPES.has(mediaType);
 };
 
 // Use strict equality: in browsers, `response.body` is `null` when the
@@ -241,6 +243,13 @@ export class ResponseParseError extends Error {
   }
 }
 
+function stripBom(text: string): string {
+  if (text.charCodeAt(0) === 0xfeff) {
+    return text.slice(1);
+  }
+  return text;
+}
+
 export async function parseJsonBody(
   response: Response,
   requestInfo: { method: string; url: string },
@@ -335,6 +344,29 @@ const parseSuccessBody = async (
   return null;
 };
 
+function setJsonHeaders(headers: Headers, initBody: BodyInit | null | undefined, responseType: string) {
+  if (
+    typeof initBody === "string" &&
+    !headers.has("content-type") &&
+    looksLikeJson(initBody)
+  ) {
+    headers.set("content-type", "application/json");
+  }
+
+  if (responseType === "json" && !headers.has("accept")) {
+    headers.set("accept", DEFAULT_JSON_ACCEPT);
+  }
+}
+
+async function setAuthHeaders(headers: Headers) {
+  if (_authTokenGetter && !headers.has("authorization")) {
+    const token = await _authTokenGetter();
+    if (token) {
+      headers.set("authorization", `Bearer ${token}`);
+    }
+  }
+}
+
 export async function customFetch<T = unknown>(
   input: RequestInfo | URL,
   options: CustomFetchOptions = {},
@@ -350,29 +382,10 @@ export async function customFetch<T = unknown>(
 
   const headers = mergeHeaders(isRequest(input) ? input.headers : undefined, headersInit);
 
-  if (
-    typeof init.body === "string" &&
-    !headers.has("content-type") &&
-    looksLikeJson(init.body)
-  ) {
-    headers.set("content-type", "application/json");
-  }
-
-  if (responseType === "json" && !headers.has("accept")) {
-    headers.set("accept", DEFAULT_JSON_ACCEPT);
-  }
-
-  // Attach bearer token when an auth getter is configured and no
-  // Authorization header has been explicitly provided.
-  if (_authTokenGetter && !headers.has("authorization")) {
-    const token = await _authTokenGetter();
-    if (token) {
-      headers.set("authorization", `Bearer ${token}`);
-    }
-  }
+  setJsonHeaders(headers, init.body, responseType);
+  await setAuthHeaders(headers);
 
   const requestInfo = { method, url: resolveUrl(input) };
-
   const response = await fetch(input, { ...init, method, headers });
 
   if (!response.ok) {

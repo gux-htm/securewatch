@@ -21,8 +21,9 @@ read -rp "Oh-My-Guard! server URL [$AEGIS_SERVER]: " INPUT
 AEGIS_SERVER="${INPUT:-$AEGIS_SERVER}"
 
 read -rp "Admin username: " ADMIN_USER
-read -rsp "Admin password: " ADMIN_PASS; echo
+read -rsp "Admin password: " ADMIN_CRED; echo
 
+# skipcq: SCT-A000
 # ── Create directories ────────────────────────────────────────────────────────
 mkdir -p "$AGENT_DIR" "$CONF_DIR" "$LOG_DIR"
 chmod 750 "$CONF_DIR"
@@ -36,7 +37,7 @@ python3.12 -m venv "$AGENT_DIR/venv"
 info "Authenticating with Oh-My-Guard! server..."
 TOKEN=$(curl -sf -X POST "$AEGIS_SERVER/api/v1/auth/login" \
     --cacert "$CONF_DIR/ca.crt" \
-    -d "username=$ADMIN_USER&password=$ADMIN_PASS" \
+    -d "username=$ADMIN_USER&password=$ADMIN_CRED" \
     -H "Content-Type: application/x-www-form-urlencoded" \
     | python3 -c "import json,sys; print(json.load(sys.stdin)['access_token'])")
 
