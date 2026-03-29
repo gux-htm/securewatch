@@ -177,10 +177,9 @@ def generate_client_ovpn(
         remote {server_ip} {port}
         resolv-retry infinite
         nobind
-ovpn = f"""
-    persist-key
-    persist-tun
-    remote-cert-tls server
+        persist-key
+        persist-tun
+        remote-cert-tls server
     cipher AES-256-GCM
     auth SHA256
     tls-version-min 1.3
@@ -202,5 +201,5 @@ ovpn = f"""
 <tls-auth>
 {ta_key.strip()}
 </tls-auth>
-"""
-return ovpn
+""")
+    return ovpn
