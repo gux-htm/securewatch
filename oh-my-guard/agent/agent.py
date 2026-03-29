@@ -272,12 +272,6 @@ async def heartbeat_loop(config: AgentConfig):
                     sys.exit(1)
 
                 # Report health metrics
-                import psutil
-                health = {
-                    "cpu_percent": psutil.cpu_percent(),
-                    "memory_percent": psutil.virtual_memory().percent,
-                    "platform": platform.system(),
-                }
                 await client.patch(f"/api/v1/devices/{config.device_id}", json={"ip": get_ip_address()})
 
             except Exception as e:
