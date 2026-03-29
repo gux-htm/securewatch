@@ -328,6 +328,7 @@ async function parseSuccessBody(
       }
       return response.blob();
   }
+  return null;
 }
 
 export async function customFetch<T = unknown>(
