@@ -22,6 +22,7 @@ if config.config_file_name is not None:
     logging.disable(logging.DEBUG)
     secure_formatter = logging.Formatter('%(asctime)s %(levelname)s %(name)s: %(message)s')
     for handler in root_logger.handlers:
+        handler.setLevel(logging.WARNING)
         handler.setFormatter(secure_formatter)
         if isinstance(handler, logging.FileHandler):
             try:
