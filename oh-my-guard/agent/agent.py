@@ -84,7 +84,7 @@ def sha256_file(path: str) -> str | None:
             for chunk in iter(lambda: f.read(65536), b""):
                 h.update(chunk)
         return h.hexdigest()
-    except (OSError, PermissionError):
+    except OSError:
         return None
 
 
