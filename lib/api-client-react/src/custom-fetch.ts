@@ -345,18 +345,24 @@ const parseSuccessBody = async (
 };
 
 // skipcq: JS-0067
-const setJsonHeaders = (headers: Headers, initBody: BodyInit | null | undefined, responseType: string): void => {
-  const isStringBody = typeof initBody === "string";
-  const hasNoContentType = !headers.has("content-type");
-  if (isStringBody && hasNoContentType && looksLikeJson(initBody as string)) {
-    headers.set("content-type", "application/json");
-  }
+const setContentTypeHeader = (headers: Headers, initBody: BodyInit | null | undefined): void => {
+  if (typeof initBody !== "string") return;
+  if (headers.has("content-type")) return;
+  if (!looksLikeJson(initBody)) return;
+  headers.set("content-type", "application/json");
+};
 
-  const isJsonResponse = responseType === "json";
-  const hasNoAccept = !headers.has("accept");
-  if (isJsonResponse && hasNoAccept) {
-    headers.set("accept", DEFAULT_JSON_ACCEPT);
-  }
+// skipcq: JS-0067
+const setAcceptHeader = (headers: Headers, responseType: string): void => {
+  if (responseType !== "json") return;
+  if (headers.has("accept")) return;
+  headers.set("accept", DEFAULT_JSON_ACCEPT);
+};
+
+// skipcq: JS-0067
+const setJsonHeaders = (headers: Headers, initBody: BodyInit | null | undefined, responseType: string): void => {
+  setContentTypeHeader(headers, initBody);
+  setAcceptHeader(headers, responseType);
 };
 
 // skipcq: JS-0067
