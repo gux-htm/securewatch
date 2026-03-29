@@ -182,52 +182,24 @@ def generate_client_ovpn(
         remote-cert-tls server
         cipher AES-256-GCM
         auth SHA256
-        tls-version-min 1.3
-        key-direction 1
-        verb 3
-"""
+    tls-version-min 1.3
+    key-direction 1
+    verb 3
 
-        <ca>
-        {ca_pem.strip()}
-        </ca>
+    <ca>
+    {ca_pem.strip()}
+    </ca>
 
-        <cert>
-        {cert_pem.strip()}
-        </cert>
+    <cert>
+    {cert_pem.strip()}
+    </cert>
 
-        <key>
-        {key_pem.strip()}
-        </key>
+    <key>
+    {key_pem.strip()}
+    </key>
 
-        <tls-auth>
-        {ta_key.strip()}
-        </tls-auth>
-    """ )
-    return ovpn
-
-
-def get_vpn_status(network_id: int) -> dict:
-    """Read OpenVPN status file to return connected clients."""
-    status_path = Path(f"/var/log/Oh-My-Guard!/openvpn-{network_id}-status.log")
-    if not status_path.exists():
-        return {"connected_clients": [], "error": "Status file not found"}
-
-    clients = []
-    in_clients = False
-    for line in status_path.read_text().splitlines():
-        if line.startswith("CLIENT_LIST"):
-            in_clients = True
-            continue
-        if in_clients and line.startswith("ROUTING_TABLE"):
-            break
-        if in_clients and "," in line:
-            parts = line.split(",")
-            if len(parts) >= 4:
-                clients.append({
-                    "common_name": parts[0],
-                    "real_address": parts[1],
-                    "virtual_address": parts[2],
-                    "connected_since": parts[4] if len(parts) > 4 else None,
-                })
-
-    return {"connected_clients": clients}
+    <tls-auth>
+    {ta_key.strip()}
+    </tls-auth>
+""" )
+return ovpn
