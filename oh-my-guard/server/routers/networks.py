@@ -95,7 +95,7 @@ async def generate_ovpn(network_id: int, body: OvpnGenerateRequest,
 
     from vpn.manager import generate_client_ovpn
     from server.config import settings
-    ovpn_content, fingerprint = generate_client_ovpn(
+    ovpn_content, _ = generate_client_ovpn(
         network_id=network_id,
         common_name=body.common_name,
         server_ip=settings.aegis_vpn_server,
