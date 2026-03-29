@@ -1,6 +1,7 @@
 """Alembic environment configuration for async SQLAlchemy."""
 import asyncio
 import os
+import logging
 from logging.config import fileConfig
 
 from alembic import context
@@ -16,6 +17,9 @@ config.set_main_option("sqlalchemy.url", os.environ["DATABASE_URL"])
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
+    root_logger = logging.getLogger()
+    if root_logger.level < logging.INFO:
+        root_logger.setLevel(logging.INFO)
 
 target_metadata = Base.metadata
 
