@@ -1,5 +1,6 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
+// skipcq: JS-C1003
 import * as schema from "./schema";
 
 const { Pool } = pg;
