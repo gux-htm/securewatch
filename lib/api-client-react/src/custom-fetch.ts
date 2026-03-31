@@ -190,12 +190,15 @@ export function buildErrorMessage(response: Response, data: unknown): string {
     getStringField(data, "error_description") ??
     getStringField(data, "error");
 
-  if (title && detail) return `${prefix}: ${title} — ${detail}`;
-  if (detail) return `${prefix}: ${detail}`;
-  if (message) return `${prefix}: ${message}`;
-  if (title) return `${prefix}: ${title}`;
+  const mapping = [
+    [!!(title && detail), `${title} — ${detail}`],
+    [!!detail, detail],
+    [!!message, message],
+    [!!title, title]
+  ];
+  const body = mapping.find(([cond]) => cond)?.[1] || "";
 
-  return prefix;
+  return body ? `${prefix}: ${body}` : prefix;
 }
 
 export class ApiError<T = unknown> extends Error {
@@ -286,34 +289,35 @@ export async function parseJsonBody(
 
 // skipcq: JS-0067, JS-R1005
 export async function parseErrorBody(response: Response, method: string): Promise<unknown> {
-  if (hasNoBody(response, method)) {
-    return null;
-  }
-
   const mediaType = getMediaType(response.headers);
+  const isBlobFallback = mediaType && !isJsonMediaType(mediaType) && !isTextMediaType(mediaType);
 
-  // Fall back to text when blob() is unavailable (e.g. some React Native builds).
-  if (mediaType && !isJsonMediaType(mediaType) && !isTextMediaType(mediaType)) {
-    return typeof response.blob === "function" ? response.blob() : response.text();
-  }
-
-  const raw = await response.text();
-  const normalized = stripBom(raw);
-  const trimmed = normalized.trim();
-
-  if (trimmed === "") {
-    return null;
-  }
-
-  if (isJsonMediaType(mediaType) || looksLikeJson(normalized)) {
-    try {
-      return JSON.parse(normalized);
-    } catch {
+  const handlers: Array<[() => boolean, () => Promise<unknown>]> = [
+    [() => hasNoBody(response, method), async () => null],
+    [() => isBlobFallback, async () => typeof response.blob === "function" ? response.blob() : response.text()],
+    [() => true, async () => {
+      const raw = await response.text();
+      const normalized = stripBom(raw);
+      const trimmed = normalized.trim();
+      if (trimmed === "") {
+        return null;
+      }
+      if (isJsonMediaType(mediaType) || looksLikeJson(normalized)) {
+        try {
+          return JSON.parse(normalized);
+        } catch {
+          return raw;
+        }
+      }
       return raw;
+    }]
+  ];
+
+  for (const [predicate, handler] of handlers) {
+    if (predicate()) {
+      return handler();
     }
   }
-
-  return raw;
 }
 
 // skipcq: JS-0067
@@ -338,20 +342,27 @@ const parseSuccessBody = async (
   const effectiveType =
     responseType === "auto" ? inferResponseType(response) : responseType;
 
-  switch (effectiveType) {
-    case "json":
-      return parseJsonBody(response, requestInfo);
+  const handlers: Record<"json" | "text" | "blob", () => Promise<unknown>> = {
+    json: () => parseJsonBody(response, requestInfo),
 
-    case "text": {
+    text: async () => {
       const text = await response.text();
       return text === "" ? null : text;
-    }
+    },
 
-    case "blob":
+    blob: async () => {
       if (typeof response.blob !== "function") {
         throw new TypeError(
           "Blob responses are not supported in this runtime. " +
-            "Use responseType \"json\" or \"text\" instead.",
+            "Use responseType \"json\" or \"text\" instead."
+        );
+      }
+      return response.blob();
+    },
+  };
+
+  return handlers[effectiveType]();
+};
         );
       }
       return response.blob();
