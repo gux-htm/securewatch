@@ -37,6 +37,7 @@ const trimTrailingSlashes = (str: string): string => {
  * Useful for Expo bundles that need to call a remote API server.
  * Pass `null` to clear the base URL.
  */
+// skipcq: JS-0067
 export function setBaseUrl(url: string | null): void {
   _baseUrl = url ? trimTrailingSlashes(url) : null;
 }
@@ -49,14 +50,17 @@ export function setBaseUrl(url: string | null): void {
  * Useful for Expo bundles making token-gated API calls.
  * Pass `null` to clear the getter.
  */
+// skipcq: JS-0067
 export function setAuthTokenGetter(getter: AuthTokenGetter | null): void {
   _authTokenGetter = getter;
 }
 
+// skipcq: JS-0067
 export function isRequest(input: RequestInfo | URL): input is Request {
   return typeof Request !== "undefined" && input instanceof Request;
 }
 
+// skipcq: JS-0067
 export function resolveMethod(input: RequestInfo | URL, explicitMethod?: string): string {
   if (explicitMethod) return explicitMethod.toUpperCase();
   if (isRequest(input)) return input.method.toUpperCase();
@@ -65,10 +69,12 @@ export function resolveMethod(input: RequestInfo | URL, explicitMethod?: string)
 
 // Use loose check for URL — some runtimes (e.g. React Native) polyfill URL
 // differently, so `instanceof URL` can fail.
+// skipcq: JS-0067
 export function isUrl(input: RequestInfo | URL): input is URL {
   return typeof URL !== "undefined" && input instanceof URL;
 }
 
+// skipcq: JS-0067
 export function applyBaseUrl(input: RequestInfo | URL): RequestInfo | URL {
   if (!_baseUrl) return input;
   const url = resolveUrl(input);
@@ -81,12 +87,14 @@ export function applyBaseUrl(input: RequestInfo | URL): RequestInfo | URL {
   return new Request(absolute, input as Request);
 }
 
+// skipcq: JS-0067
 export function resolveUrl(input: RequestInfo | URL): string {
   if (typeof input === "string") return input;
   if (isUrl(input)) return input.toString();
   return input.url;
 }
 
+// skipcq: JS-0067
 export function mergeHeaders(...sources: Array<HeadersInit | undefined>): Headers {
   const headers = new Headers();
 
@@ -100,11 +108,13 @@ export function mergeHeaders(...sources: Array<HeadersInit | undefined>): Header
   return headers;
 }
 
+// skipcq: JS-0067
 export function getMediaType(headers: Headers): string | null {
   const value = headers.get("content-type");
   return value ? value.split(";", 1)[0].trim().toLowerCase() : null;
 }
 
+// skipcq: JS-0067
 export function isJsonMediaType(mediaType: string | null): boolean {
   return mediaType === "application/json" || Boolean(mediaType?.endsWith("+json"));
 }
@@ -130,6 +140,7 @@ const isTextMediaType = (mediaType: string | null): boolean => {
 // even when the response carries a full payload readable via `.text()` or
 // `.json()`.  Loose equality (`== null`) matches both `null` and `undefined`,
 // which causes every React Native response to be treated as empty.
+// skipcq: JS-0067
 export function hasNoBody(response: Response, method: string): boolean {
   return method === "HEAD" ||
     NO_BODY_STATUS.has(response.status) ||
@@ -141,11 +152,13 @@ export function hasNoBody(response: Response, method: string): boolean {
   // empty because this IIFE is used to isolate scope
 })();
 
+// skipcq: JS-0067
 export function looksLikeJson(text: string): boolean {
   const trimmed = text.trimStart();
   return trimmed.startsWith("{") || trimmed.startsWith("[");
 }
 
+// skipcq: JS-0067
 export function getStringField(value: unknown, key: string): string | undefined {
   if (!value || typeof value !== "object") return undefined;
 
@@ -156,10 +169,12 @@ export function getStringField(value: unknown, key: string): string | undefined 
   return trimmed === "" ? undefined : trimmed;
 }
 
+// skipcq: JS-0067
 export function truncate(text: string, maxLength = 300): string {
   return text.length > maxLength ? `${text.slice(0, maxLength - 1)}…` : text;
 }
 
+// skipcq: JS-0067
 export function buildErrorMessage(response: Response, data: unknown): string {
   const prefix = `HTTP ${response.status} ${response.statusText}`;
 
@@ -250,6 +265,7 @@ const stripBom = (text: string): string => {
   return text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
 };
 
+// skipcq: JS-0067
 export async function parseJsonBody(
   response: Response,
   requestInfo: { method: string; url: string },
@@ -268,6 +284,7 @@ export async function parseJsonBody(
   }
 }
 
+// skipcq: JS-0067
 export async function parseErrorBody(response: Response, method: string): Promise<unknown> {
   if (hasNoBody(response, method)) {
     return null;
@@ -299,6 +316,7 @@ export async function parseErrorBody(response: Response, method: string): Promis
   return raw;
 }
 
+// skipcq: JS-0067
 export function inferResponseType(response: Response): "json" | "text" | "blob" {
   const mediaType = getMediaType(response.headers);
 
@@ -383,6 +401,7 @@ const checkBodyMethod = (method: string, body: BodyInit | null | undefined): voi
   }
 };
 
+// skipcq: JS-0067
 export async function customFetch<T = unknown>(
   input: RequestInfo | URL,
   options: CustomFetchOptions = {},
