@@ -46,16 +46,18 @@ def create_network_vpn(network_id: int, name: str, subnet: str, port: int, proto
     dh_path = vpn_dir / "dh4096.pem"
     if not dh_path.exists():
         logger.info(f"Generating DH params for network {network_id}. This takes a moment...")
+        # Security: Use fully qualified absolute path to prevent PATH manipulation attacks
         subprocess.run(
-            ["openssl", "dhparam", "-out", str(dh_path), "2048"],
+            ["/usr/bin/openssl", "dhparam", "-out", str(dh_path), "2048"],
             check=True, capture_output=True,
         )
 
     # Generate TLS-auth key
     ta_path = vpn_dir / "ta.key"
     if not ta_path.exists():
+        # Security: Use fully qualified absolute path to prevent PATH manipulation attacks
         subprocess.run(
-            ["openvpn", "--genkey", "--secret", str(ta_path)],
+            ["/usr/sbin/openvpn", "--genkey", "--secret", str(ta_path)],
             check=True, capture_output=True,
         )
 
@@ -130,16 +132,18 @@ def _install_vpn_service(network_id: int, conf_path: Path) -> None:
     unit_path = Path(f"/etc/systemd/system/{service_name}.service")
     unit_path.write_text(unit_content)
 
-    subprocess.run(["systemctl", "daemon-reload"], check=False)
-    subprocess.run(["systemctl", "enable", "--now", service_name], check=False)
+    # Security: Use fully qualified absolute paths to prevent PATH manipulation attacks
+    subprocess.run(["/usr/bin/systemctl", "daemon-reload"], check=False)
+    subprocess.run(["/usr/bin/systemctl", "enable", "--now", service_name], check=False)
 
 
 
 def stop_network_vpn(network_id: int) -> None:
     """Stop and disable the OpenVPN instance for a network."""
     service = f"Oh-My-Guard!-vpn@{network_id}"
-    subprocess.run(["systemctl", "stop", service], check=False)
-    subprocess.run(["systemctl", "disable", service], check=False)
+    # Security: Use fully qualified absolute paths to prevent PATH manipulation attacks
+    subprocess.run(["/usr/bin/systemctl", "stop", service], check=False)
+    subprocess.run(["/usr/bin/systemctl", "disable", service], check=False)
 
 
 def generate_client_ovpn(
