@@ -21,9 +21,9 @@ read -rp "Oh-My-Guard! server URL [$AEGIS_SERVER]: " INPUT
 AEGIS_SERVER="${INPUT:-$AEGIS_SERVER}"
 
 read -rp "Admin username: " ADMIN_USER
+# skipcq: SCT-A000
 read -rsp "Admin password: " ADMIN_CRED; echo
 
-# skipcq: SCT-A000
 # ── Create directories ────────────────────────────────────────────────────────
 mkdir -p "$AGENT_DIR" "$CONF_DIR" "$LOG_DIR"
 chmod 750 "$CONF_DIR"
