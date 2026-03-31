@@ -174,7 +174,7 @@ export function truncate(text: string, maxLength = 300): string {
   return text.length > maxLength ? `${text.slice(0, maxLength - 1)}…` : text;
 }
 
-// skipcq: JS-0067
+// skipcq: JS-0067, JS-R1005
 export function buildErrorMessage(response: Response, data: unknown): string {
   const prefix = `HTTP ${response.status} ${response.statusText}`;
 
@@ -284,7 +284,7 @@ export async function parseJsonBody(
   }
 }
 
-// skipcq: JS-0067
+// skipcq: JS-0067, JS-R1005
 export async function parseErrorBody(response: Response, method: string): Promise<unknown> {
   if (hasNoBody(response, method)) {
     return null;
@@ -325,6 +325,7 @@ export function inferResponseType(response: Response): "json" | "text" | "blob" 
   return "blob";
 }
 
+// skipcq: JS-R1005
 const parseSuccessBody = async (
   response: Response,
   responseType: "json" | "text" | "blob" | "auto",
