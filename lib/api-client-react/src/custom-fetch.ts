@@ -338,7 +338,6 @@ const parseSuccessBody = async (
   if (hasNoBody(response, requestInfo.method)) {
     return null;
   }
-
   const effectiveType =
     responseType === "auto" ? inferResponseType(response) : responseType;
 
