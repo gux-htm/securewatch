@@ -19,7 +19,7 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.WARNING)
-    logging.disable(logging.INFO)
+    logging.disable(logging.DEBUG)
     secure_formatter = logging.Formatter('%(asctime)s %(levelname)s %(name)s: %(message)s')
     for handler in root_logger.handlers:
         handler.setLevel(logging.WARNING)
