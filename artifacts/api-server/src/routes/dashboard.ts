@@ -46,7 +46,7 @@ router.get("/stats", async (req, res) => {
 router.get("/summary", async (req, res) => {
   try {
     const [criticalAlerts] = await db.select({ value: count() }).from(alertsTable)
-      .where(and(eq(alertsTable.severity, "CRITICAL"), eq(alertsTable.acknowledged, false)));
+      .where(and(eq(alertsTable.severity, "critical"), eq(alertsTable.acknowledged, false)));
     const [unacknowledgedAlerts] = await db.select({ value: count() }).from(alertsTable)
       .where(eq(alertsTable.acknowledged, false));
     const [activeSessions] = await db.select({ value: count() }).from(sessionsTable)

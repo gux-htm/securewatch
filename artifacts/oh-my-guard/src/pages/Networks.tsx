@@ -46,7 +46,7 @@ export default function Networks() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {list.data?.map(net => (
+        {(Array.isArray(list.data) ? list.data : []).map(net => (
           <Card key={net.id} className="relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -z-10 group-hover:bg-primary/10 transition-colors" />
             <CardContent className="p-6">
@@ -85,7 +85,7 @@ export default function Networks() {
             </CardContent>
           </Card>
         ))}
-        {list.data?.length === 0 && (
+        {Array.isArray(list.data) && list.data.length === 0 && (
           <div className="col-span-full py-12 text-center text-muted-foreground">No networks configured.</div>
         )}
       </div>

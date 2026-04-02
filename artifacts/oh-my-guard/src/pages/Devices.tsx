@@ -67,7 +67,7 @@ export default function Devices() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/50">
-                {list.data?.map(device => (
+                {(Array.isArray(list.data) ? list.data : []).map(device => (
                   <tr key={device.id} className="hover:bg-secondary/20 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -106,7 +106,7 @@ export default function Devices() {
                     </td>
                   </tr>
                 ))}
-                {list.data?.length === 0 && (
+                {Array.isArray(list.data) && list.data.length === 0 && (
                   <tr><td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">No devices registered.</td></tr>
                 )}
               </tbody>

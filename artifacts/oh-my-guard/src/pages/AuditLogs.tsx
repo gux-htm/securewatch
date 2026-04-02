@@ -30,7 +30,7 @@ export default function AuditLogs() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/50 font-mono text-xs">
-                {list.data?.map(log => {
+                {(Array.isArray(list.data) ? list.data : []).map(log => {
                    const severityColors = {
                     critical: 'text-destructive',
                     error: 'text-destructive',
@@ -53,7 +53,7 @@ export default function AuditLogs() {
                     </tr>
                   )
                 })}
-                {list.data?.length === 0 && (
+                {Array.isArray(list.data) && list.data.length === 0 && (
                   <tr><td colSpan={6} className="px-6 py-8 text-center text-muted-foreground font-sans">No audit logs found.</td></tr>
                 )}
               </tbody>

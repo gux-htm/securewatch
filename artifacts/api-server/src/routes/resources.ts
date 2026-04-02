@@ -33,7 +33,7 @@ router.post("/", async (req, res) => {
 
 router.patch("/:id", async (req, res) => {
   try {
-    const allowed = ["name", "description", "currentHash", "archived"];
+    const allowed = ["name", "path", "description", "currentHash", "archived"];
     const updates: any = {};
     for (const k of allowed) { if (req.body[k] !== undefined) updates[k] = req.body[k]; }
     updates.updatedAt = new Date();

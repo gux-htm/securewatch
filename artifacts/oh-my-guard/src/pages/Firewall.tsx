@@ -56,7 +56,7 @@ export default function Firewall() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/50 font-mono text-[13px]">
-                {list.data?.sort((a,b) => a.priority - b.priority).map((rule) => (
+                {(Array.isArray(list.data) ? list.data : []).sort((a,b) => a.priority - b.priority).map((rule) => (
                   <tr key={rule.id} className={`hover:bg-secondary/20 transition-colors ${!rule.enabled ? 'opacity-50' : ''}`}>
                     <td className="px-6 py-4 font-bold text-muted-foreground">{rule.priority}</td>
                     <td className="px-6 py-4">
@@ -83,7 +83,7 @@ export default function Firewall() {
                     </td>
                   </tr>
                 ))}
-                {list.data?.length === 0 && (
+                {Array.isArray(list.data) && list.data.length === 0 && (
                   <tr><td colSpan={8} className="px-6 py-8 text-center text-muted-foreground font-sans">No firewall rules defined.</td></tr>
                 )}
               </tbody>

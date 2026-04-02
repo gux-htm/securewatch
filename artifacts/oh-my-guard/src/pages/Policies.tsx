@@ -40,7 +40,7 @@ export default function Policies() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {list.data?.map(policy => (
+        {(Array.isArray(list.data) ? list.data : []).map(policy => (
           <Card key={policy.id} className="relative group">
             <CardContent className="p-6">
               <div className="flex justify-between items-start mb-4">
@@ -70,7 +70,7 @@ export default function Policies() {
             </CardContent>
           </Card>
         ))}
-        {list.data?.length === 0 && (
+        {Array.isArray(list.data) && list.data.length === 0 && (
           <div className="col-span-full py-12 text-center text-muted-foreground">No access policies defined.</div>
         )}
       </div>

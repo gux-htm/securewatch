@@ -1,9 +1,51 @@
 import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
-import { fileEventsTable, devicesTable, insertFileEventSchema } from "@workspace/db/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { fileEventsTable, devicesTable, accountsTable, insertFileEventSchema } from "@workspace/db/schema";
+import { eq, and, desc, sql } from "drizzle-orm";
 
 const router: IRouter = Router();
+
+const eventSelect = {
+  id: fileEventsTable.id,
+  deviceId: fileEventsTable.deviceId,
+  deviceHostname: devicesTable.hostname,
+  deviceMac: devicesTable.mac,
+  deviceIp: devicesTable.ip,
+  userId: fileEventsTable.userId,
+  userName: accountsTable.username,
+  filePath: fileEventsTable.filePath,
+  action: fileEventsTable.action,
+  hashBefore: fileEventsTable.hashBefore,
+  hashAfter: fileEventsTable.hashAfter,
+  userSignature: fileEventsTable.userSignature,
+  privilegesUsed: fileEventsTable.privilegesUsed,
+  createdAt: fileEventsTable.createdAt,
+};
+
+// One row per file — latest event only
+router.get("/latest", async (req, res) => {
+  try {
+    // Get the max id per filePath, then join back to get full event details
+    const latest = await db.execute(sql`
+      SELECT
+        fe.id, fe.device_id, fe.user_id, fe.file_path, fe.action,
+        fe.hash_before, fe.hash_after, fe.user_signature, fe.privileges_used, fe.created_at,
+        d.hostname AS device_hostname, d.mac AS device_mac, d.ip AS device_ip,
+        a.username AS user_name
+      FROM file_events fe
+      INNER JOIN (
+        SELECT file_path, MAX(id) AS max_id FROM file_events GROUP BY file_path
+      ) latest ON fe.id = latest.max_id
+      LEFT JOIN devices d ON fe.device_id = d.id
+      LEFT JOIN accounts a ON fe.user_id = a.id
+      ORDER BY fe.created_at DESC
+    `);
+    res.json(latest.rows);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Failed to list latest file events" });
+  }
+});
 
 router.get("/events", async (req, res) => {
   try {
@@ -13,29 +55,42 @@ router.get("/events", async (req, res) => {
     if (action) conditions.push(eq(fileEventsTable.action, action as "create" | "edit" | "delete" | "rename" | "view"));
 
     const events = await db
-      .select({
-        id: fileEventsTable.id,
-        deviceId: fileEventsTable.deviceId,
-        deviceHostname: devicesTable.hostname,
-        userId: fileEventsTable.userId,
-        filePath: fileEventsTable.filePath,
-        action: fileEventsTable.action,
-        hashBefore: fileEventsTable.hashBefore,
-        hashAfter: fileEventsTable.hashAfter,
-        userSignature: fileEventsTable.userSignature,
-        privilegesUsed: fileEventsTable.privilegesUsed,
-        createdAt: fileEventsTable.createdAt,
-      })
+      .select(eventSelect)
       .from(fileEventsTable)
       .leftJoin(devicesTable, eq(fileEventsTable.deviceId, devicesTable.id))
+      .leftJoin(accountsTable, eq(fileEventsTable.userId, accountsTable.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(desc(fileEventsTable.createdAt))
-      .limit(limit ? Number(limit) : 100);
+      .limit(limit ? Number(limit) : 200);
 
     res.json(events);
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "Failed to list file events" });
+  }
+});
+
+// Full history for a specific file path
+router.get("/events/history", async (req, res) => {
+  try {
+    const { filePath, action } = req.query;
+    if (!filePath) return res.status(400).json({ error: "filePath query param required" });
+
+    const conditions = [eq(fileEventsTable.filePath, filePath as string)];
+    if (action) conditions.push(eq(fileEventsTable.action, action as "create" | "edit" | "delete" | "rename" | "view"));
+
+    const events = await db
+      .select(eventSelect)
+      .from(fileEventsTable)
+      .leftJoin(devicesTable, eq(fileEventsTable.deviceId, devicesTable.id))
+      .leftJoin(accountsTable, eq(fileEventsTable.userId, accountsTable.id))
+      .where(and(...conditions))
+      .orderBy(desc(fileEventsTable.createdAt));
+
+    res.json(events);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Failed to fetch file history" });
   }
 });
 

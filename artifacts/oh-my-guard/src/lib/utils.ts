@@ -9,7 +9,9 @@ export function cn(...inputs: ClassValue[]) {
 export function formatDate(dateString: string | undefined | null) {
   if (!dateString) return "N/A";
   try {
-    return format(parseISO(dateString), "MMM dd, yyyy HH:mm:ss");
+    // Normalize PostgreSQL timestamp format (space separator) to ISO 8601
+    const normalized = dateString.replace(" ", "T");
+    return format(parseISO(normalized), "MMM dd, yyyy HH:mm:ss");
   } catch {
     return dateString;
   }

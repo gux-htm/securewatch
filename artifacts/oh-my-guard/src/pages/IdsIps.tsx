@@ -47,7 +47,7 @@ export default function IdsIps() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/50">
-                  {alerts.data?.map(alert => {
+                  {(Array.isArray(alerts.data) ? alerts.data : []).map(alert => {
                     const severityColors = {
                       critical: 'text-destructive bg-destructive/10 border-destructive/30',
                       high: 'text-warning bg-warning/10 border-warning/30',
@@ -84,7 +84,7 @@ export default function IdsIps() {
                       </tr>
                     )
                   })}
-                  {alerts.data?.length === 0 && (
+                  {Array.isArray(alerts.data) && alerts.data.length === 0 && (
                     <tr><td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">No active alerts. System secure.</td></tr>
                   )}
                 </tbody>
@@ -103,7 +103,7 @@ export default function IdsIps() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/50">
-                  {signatures.data?.map(sig => (
+                  {(Array.isArray(signatures.data) ? signatures.data : []).map(sig => (
                     <tr key={sig.id} className="hover:bg-secondary/20 transition-colors">
                       <td className="px-6 py-4 font-medium text-foreground">{sig.name}</td>
                       <td className="px-6 py-4 text-muted-foreground capitalize">{sig.category}</td>
@@ -112,7 +112,7 @@ export default function IdsIps() {
                       <td className="px-6 py-4 uppercase font-semibold text-xs text-muted-foreground">{sig.action}</td>
                     </tr>
                   ))}
-                  {signatures.data?.length === 0 && (
+                  {Array.isArray(signatures.data) && signatures.data.length === 0 && (
                     <tr><td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">No signatures defined.</td></tr>
                   )}
                 </tbody>

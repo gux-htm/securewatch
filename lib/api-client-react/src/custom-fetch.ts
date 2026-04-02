@@ -362,16 +362,6 @@ const parseSuccessBody = async (
 
   return handlers[effectiveType]();
 };
-        );
-      }
-      return response.blob();
-
-    default:
-      // Optional: Add code for default behavior here
-      break;
-  }
-  return null;
-};
 
 // skipcq: JS-0067
 const setContentTypeHeader = (headers: Headers, initBody: BodyInit | null | undefined): void => {

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "wouter";
 import {
-  Shield, LayoutDashboard, Laptop, Network, ShieldAlert, Fingerprint,
+  LayoutDashboard, Laptop, Network, ShieldAlert, Fingerprint,
   FileCode2, History, KeyRound, BellRing, Monitor, Users, Users2,
   Globe, Database, Plug, Settings, X, AlertTriangle
 } from "lucide-react";
@@ -67,13 +67,26 @@ export function Layout({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <aside className="w-64 border-r border-border/50 bg-card/50 backdrop-blur-xl flex flex-col relative z-20 overflow-y-auto">
         <div className="p-5 flex items-center gap-3 border-b border-border/50 sticky top-0 bg-card/80 backdrop-blur-xl z-10">
-          <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/30 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
-            <Shield className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <h1 className="font-display font-bold text-lg text-foreground tracking-wide leading-tight">AEGIS<span className="text-primary">GUARD</span></h1>
-            <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">Enterprise SOC</p>
-          </div>
+          {/* Dark-mode wordmark — hidden in light, shown in dark */}
+          <img
+            src="/images/logo-dark.png"
+            alt="SecureWatch Logo"
+            width={160}
+            height={32}
+            aria-hidden="false"
+            className="hidden dark:block h-8 w-auto object-contain"
+            style={{ maxHeight: 40 }}
+          />
+          {/* Light-mode wordmark */}
+          <img
+            src="/images/logo-light.png"
+            alt="SecureWatch Logo"
+            width={160}
+            height={32}
+            aria-hidden="false"
+            className="block dark:hidden h-8 w-auto object-contain"
+            style={{ maxHeight: 40 }}
+          />
         </div>
 
         <nav className="flex-1 py-4 px-3 space-y-5">
@@ -164,7 +177,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         )}
 
         <main className="flex-1 relative overflow-y-auto z-10">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=2000')] bg-cover bg-center opacity-[0.02] mix-blend-screen pointer-events-none" />
+          <div className="absolute inset-0 bg-[url('/images/hero-image.png')] bg-cover bg-center opacity-[0.02] mix-blend-screen pointer-events-none" />
           <div className="p-8 max-w-7xl mx-auto min-h-full">
             {children}
           </div>
