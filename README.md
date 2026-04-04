@@ -17,7 +17,6 @@
 
 **Zero-Trust · IPS/IDS · Firewall · VPN · File Monitoring · Digital Audit**
 
-*No Docker. No containers. Bare-metal only.*
 
 </div>
 
