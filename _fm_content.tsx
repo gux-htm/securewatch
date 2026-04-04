@@ -9,4 +9,4 @@ type AC = typeof AC;
 type FE = {
   id:number; file_path?:string; filePath?:string; action:keyof AC;
   created_at?:string; createdAt?:string;
-  device_hostname?:string|nul
+  device_hostname?:string|null;
