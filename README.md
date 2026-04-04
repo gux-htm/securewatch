@@ -15,7 +15,6 @@
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](.)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](.)
 
-**Zero-Trust · IPS/IDS · Firewall · VPN · File Monitoring · Digital Audit**
 
 
 </div>
