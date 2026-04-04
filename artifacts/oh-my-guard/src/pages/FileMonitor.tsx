@@ -1,7 +1,7 @@
-﻿import React, { useState } from "react";
-import { useFiles, useFileHistory, useRecordView } from "@/hooks/use-files";
+import React, { useState } from "react";
+import { useFiles, useFileHistory } from "@/hooks/use-files";
 import { Card, CardContent, Badge } from "@/components/ui-elements";
-import { ArrowRight, X, Shield, Cpu, Wifi, User, KeyRound, ChevronRight, Eye } from "lucide-react";
+import { ArrowRight, X, Shield, Cpu, Wifi, User, KeyRound, ChevronRight } from "lucide-react";
 import { formatDate, cn } from "@/lib/utils";
 
 const AC = { create:"success", edit:"warning", delete:"destructive", rename:"default", view:"outline" } as const;
@@ -30,14 +30,14 @@ function DP({event,onClose}:{event:NE;onClose:()=>void}){
             <div className="flex items-center gap-2 mb-1"><Badge variant={AC[event.action]}>{event.action.toUpperCase()}</Badge><span className="text-xs text-muted-foreground">{formatDate(event.createdAt)}</span></div>
             <p className="font-mono text-sm text-foreground break-all">{event.filePath}</p>
           </div>
-          <button onClick={()=>recordView.mutate(event.filePath)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-primary/10 text-primary border border-primary/20 rounded-lg hover:bg-primary/20 transition-colors mr-2" title="Record as Viewed"><Eye className="w-3.5 h-3.5"/>Mark Viewed</button><button onClick={onClose} className="text-muted-foreground hover:text-foreground"><X className="w-5 h-5"/></button>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground"><X className="w-5 h-5"/></button>
         </div>
         <div className="p-5 space-y-5 flex-1">
           <div className="rounded-xl border border-border/50 bg-secondary/20 overflow-hidden">
-            <div className="px-4 py-2 bg-secondary/40 border-b border-border/30"><p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Identity and Device</p></div>
+            <div className="px-4 py-2 bg-secondary/40 border-b border-border/30"><p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Identity &amp; Device</p></div>
             <div className="p-4 grid grid-cols-2 gap-4">
-              <div className="flex items-start gap-3"><User className="w-4 h-4 text-primary mt-0.5"/><div><p className="text-[10px] text-muted-foreground uppercase">User</p><p className="text-sm font-medium text-foreground">{event.userName||"-"}</p></div></div>
-              <div className="flex items-start gap-3"><Cpu className="w-4 h-4 text-primary mt-0.5"/><div><p className="text-[10px] text-muted-foreground uppercase">Hostname</p><p className="text-sm font-medium text-foreground">{event.deviceHostname||"-"}</p></div></div>
+              <div className="flex items-start gap-3"><User className="w-4 h-4 text-primary mt-0.5"/><div><p className="text-[10px] text-muted-foreground uppercase">User</p><p className="text-sm font-medium text-foreground">{event.userName||(event.userId?`User #${event.userId}`:"-")}</p></div></div>
+              <div className="flex items-start gap-3"><Cpu className="w-4 h-4 text-primary mt-0.5"/><div><p className="text-[10px] text-muted-foreground uppercase">Hostname</p><p className="text-sm font-medium text-foreground">{event.deviceHostname||(event.deviceId?`Device #${event.deviceId}`:"-")}</p></div></div>
               <div className="flex items-start gap-3"><Wifi className="w-4 h-4 text-primary mt-0.5"/><div><p className="text-[10px] text-muted-foreground uppercase">IP Address</p><p className="font-mono text-sm text-foreground">{event.deviceIp||"-"}</p></div></div>
               <div className="flex items-start gap-3"><Shield className="w-4 h-4 text-primary mt-0.5"/><div><p className="text-[10px] text-muted-foreground uppercase">MAC Address</p><p className="font-mono text-sm text-foreground">{event.deviceMac||"-"}</p></div></div>
               {event.privilegesUsed&&(<div className="col-span-2 flex items-start gap-3"><KeyRound className="w-4 h-4 text-warning mt-0.5"/><div><p className="text-[10px] text-muted-foreground uppercase">Privileges</p><p className="text-sm text-warning">{event.privilegesUsed}</p></div></div>)}
@@ -61,7 +61,17 @@ function DP({event,onClose}:{event:NE;onClose:()=>void}){
             <div className="divide-y divide-border/30">
               {hist.isLoading&&<div className="p-4 text-center text-xs text-muted-foreground">Loading...</div>}
               {!hist.isLoading&&items.length===0&&<div className="p-4 text-center text-xs text-muted-foreground">No {f!=="all"?f:""} events found.</div>}
-              {items.map((h,i)=>(<div key={h.id} className={cn("px-4 py-3 flex items-start gap-3",h.id===event.id&&"bg-primary/5")}><span className="text-[10px] text-muted-foreground/40 font-mono mt-1 w-5 text-right flex-shrink-0">{items.length-i}</span><div className="flex-shrink-0 mt-0.5"><Badge variant={AC[h.action]} className="text-[9px] px-1.5 py-0">{h.action.toUpperCase()}</Badge></div><div className="flex-1 min-w-0"><div className="flex items-center gap-2"><span className="text-xs text-muted-foreground font-mono">{formatDate(h.createdAt)}</span>{h.id===event.id&&<span className="text-[9px] text-primary font-mono">latest</span>}</div><div className="text-[10px] text-muted-foreground font-mono">{h.userName||"-"} - {h.deviceHostname||"-"}</div>{(h.hashAfter||h.hashBefore)&&<p className="text-[10px] font-mono text-primary/70 truncate">{(h.hashAfter||h.hashBefore)!.substring(0,20)}...</p>}</div></div>))}
+              {items.map((h,i)=>(
+                <div key={h.id} className={cn("px-4 py-3 flex items-start gap-3",h.id===event.id&&"bg-primary/5")}>
+                  <span className="text-[10px] text-muted-foreground/40 font-mono mt-1 w-5 text-right flex-shrink-0">{items.length-i}</span>
+                  <div className="flex-shrink-0 mt-0.5"><Badge variant={AC[h.action]} className="text-[9px] px-1.5 py-0">{h.action.toUpperCase()}</Badge></div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2"><span className="text-xs text-muted-foreground font-mono">{formatDate(h.createdAt)}</span>{h.id===event.id&&<span className="text-[9px] text-primary font-mono">latest</span>}</div>
+                    <div className="text-[10px] text-muted-foreground font-mono">{h.userName||"-"} · {h.deviceHostname||"-"}{h.deviceIp&&` · ${h.deviceIp}`}</div>
+                    {(h.hashAfter||h.hashBefore)&&<p className="text-[10px] font-mono text-primary/70 truncate">{(h.hashAfter||h.hashBefore)!.substring(0,20)}…</p>}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -69,6 +79,7 @@ function DP({event,onClose}:{event:NE;onClose:()=>void}){
     </div>
   );
 }
+
 
 export default function FileMonitor(){
   const {list}=useFiles();
@@ -88,7 +99,7 @@ export default function FileMonitor(){
             <td className="px-6 py-4 text-xs text-muted-foreground whitespace-nowrap">{formatDate(f.createdAt)}</td>
             <td className="px-6 py-4 text-xs text-muted-foreground">{f.userName||"-"}</td>
             <td className="px-6 py-4"><div className="text-xs text-muted-foreground">{f.deviceHostname||"-"}</div>{f.deviceIp&&<div className="font-mono text-[10px] text-primary">{f.deviceIp}</div>}</td>
-            <td className="px-6 py-4 font-mono text-[10px] text-primary">{f.hashAfter?f.hashAfter.substring(0,16)+"...":"-"}</td>
+            <td className="px-6 py-4 font-mono text-[10px] text-primary">{f.hashAfter?f.hashAfter.substring(0,16)+"…":"-"}</td>
             <td className="px-6 py-4"><ChevronRight className="w-4 h-4 text-muted-foreground"/></td>
           </tr>))}
           {files.length===0&&!list.isLoading&&<tr><td colSpan={7} className="px-6 py-12 text-center text-muted-foreground">No monitored files yet.</td></tr>}
