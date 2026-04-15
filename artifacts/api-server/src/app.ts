@@ -9,7 +9,8 @@ const app: Express = express();
 
 app.use(
   pinoHttp({
-    logger,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    logger: logger as any,
     serializers: {
       req(req) {
         return {

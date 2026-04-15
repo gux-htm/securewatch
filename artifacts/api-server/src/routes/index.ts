@@ -16,6 +16,8 @@ import zonesRouter from "./zones";
 import resourcesRouter from "./resources";
 import settingsRouter from "./settings";
 import integrationsRouter from "./integrations";
+import endDeviceRouter from "./end-device";
+import publicRouter from "./public";
 
 const router: IRouter = Router();
 
@@ -36,5 +38,7 @@ router.use("/zones", zonesRouter);
 router.use("/resources", resourcesRouter);
 router.use("/settings", settingsRouter);
 router.use("/integrations", integrationsRouter);
+router.use("/end-device", endDeviceRouter);
+router.use("/public", publicRouter);
 
 export default router;

@@ -6,7 +6,12 @@ import {
 
 export function useDashboard() {
   const queryClient = useQueryClient();
-  const stats = useGetDashboardStats({ query: { refetchInterval: 30000 } });
+  const stats = useGetDashboardStats({
+    query: {
+      queryKey: getGetDashboardStatsQueryKey(),
+      refetchInterval: 30000,
+    },
+  });
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: getGetDashboardStatsQueryKey() });

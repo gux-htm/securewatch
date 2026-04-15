@@ -14,10 +14,10 @@ router.get("/", async (req, res) => {
 
     const policies = await db.select().from(policiesTable)
       .where(conditions.length > 0 ? and(...conditions) : undefined);
-    res.json(policies);
+    return res.json(policies);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to list policies" });
+    return res.status(500).json({ error: "Failed to list policies" });
   }
 });
 
@@ -26,36 +26,38 @@ router.post("/", async (req, res) => {
     const parsed = insertPolicySchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: parsed.error.message });
     const [policy] = await db.insert(policiesTable).values(parsed.data).returning();
-    res.status(201).json(policy);
+    return res.status(201).json(policy);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to create policy" });
+    return res.status(500).json({ error: "Failed to create policy" });
   }
 });
 
 router.patch("/:id", async (req, res) => {
   try {
-    const { permissions } = req.body;
+    const { permissions } = req.body as {
+      permissions?: { view: boolean; edit: boolean; delete: boolean; rename: boolean; fullControl: boolean };
+    };
     const [policy] = await db
       .update(policiesTable)
       .set({ permissions, updatedAt: new Date() })
       .where(eq(policiesTable.id, Number(req.params.id)))
       .returning();
     if (!policy) return res.status(404).json({ error: "Policy not found" });
-    res.json(policy);
+    return res.json(policy);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to update policy" });
+    return res.status(500).json({ error: "Failed to update policy" });
   }
 });
 
 router.delete("/:id", async (req, res) => {
   try {
     await db.delete(policiesTable).where(eq(policiesTable.id, Number(req.params.id)));
-    res.status(204).send();
+    return res.status(204).send();
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to delete policy" });
+    return res.status(500).json({ error: "Failed to delete policy" });
   }
 });
 

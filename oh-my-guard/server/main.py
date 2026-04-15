@@ -91,6 +91,10 @@ app.include_router(dashboard_router, prefix=f"{API_PREFIX}/dashboard", tags=["da
 app.include_router(vpn_router,       prefix=f"{API_PREFIX}/vpn",       tags=["vpn"])
 app.include_router(websocket_router,                                    tags=["realtime"])
 
+# ─── Engine Routers (internal, no auth — bound to localhost only) ─────────────
+from engine.ovpn_issue import router as ovpn_issue_router  # noqa: E402
+app.include_router(ovpn_issue_router, tags=["engine"])
+
 # ─── HTMX Dashboard (static + templates) ─────────────────────────────────────
 
 _static_dir    = os.path.join(os.path.dirname(__file__), "../dashboard/static")

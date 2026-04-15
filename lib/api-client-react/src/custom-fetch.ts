@@ -290,7 +290,7 @@ export async function parseJsonBody(
 // skipcq: JS-0067, JS-R1005
 export async function parseErrorBody(response: Response, method: string): Promise<unknown> {
   const mediaType = getMediaType(response.headers);
-  const isBlobFallback = mediaType && !isJsonMediaType(mediaType) && !isTextMediaType(mediaType);
+  const isBlobFallback = Boolean(mediaType && !isJsonMediaType(mediaType) && !isTextMediaType(mediaType));
 
   const handlers: Array<[() => boolean, () => Promise<unknown>]> = [
     [() => hasNoBody(response, method), async () => null],
@@ -318,6 +318,7 @@ export async function parseErrorBody(response: Response, method: string): Promis
       return handler();
     }
   }
+  return null;
 }
 
 // skipcq: JS-0067

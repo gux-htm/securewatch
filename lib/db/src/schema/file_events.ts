@@ -14,7 +14,10 @@ export const fileEventsTable = pgTable("file_events", {
   hashBefore: text("hash_before"),
   hashAfter: text("hash_after"),
   userSignature: text("user_signature"),
+  macAddress: text("mac_address"),
+  ipAddress: text("ip_address"),
   privilegesUsed: text("privileges_used"),
+  severity: text("severity").notNull().default("info"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

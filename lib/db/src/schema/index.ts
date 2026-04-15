@@ -14,3 +14,5 @@ export * from "./resources";
 export * from "./alerts";
 export * from "./settings";
 export * from "./integrations";
+export * from "./ovpn_issuances";
+export * from "./end_device_sessions";

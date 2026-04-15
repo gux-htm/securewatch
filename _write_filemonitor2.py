@@ -1,4 +1,4 @@
-import { useState } from "react";
+content = r'''import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, Badge, Button } from "@/components/ui-elements";
 import { Shield, ChevronRight, ChevronDown, FileText, ShieldCheck, ShieldAlert, Filter } from "lucide-react";
@@ -296,3 +296,10 @@ export default function FileMonitor() {
     </div>
   );
 }
+'''
+
+import os
+dst = r"artifacts/oh-my-guard/src/pages/FileMonitor.tsx"
+with open(dst, "w", encoding="utf-8") as f:
+    f.write(content)
+print("Written", os.path.getsize(dst), "bytes")

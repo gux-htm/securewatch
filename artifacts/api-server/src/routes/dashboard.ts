@@ -26,7 +26,7 @@ router.get("/stats", async (req, res) => {
     const [totalFileEvents] = await db.select({ value: count() }).from(fileEventsTable);
     const [recentAuditLogs] = await db.select({ value: count() }).from(auditLogsTable);
 
-    res.json({
+    return res.json({
       totalDevices: Number(totalDevices.value),
       activeDevices: Number(activeDevices.value),
       blockedDevices: Number(blockedDevices.value),
@@ -39,14 +39,14 @@ router.get("/stats", async (req, res) => {
     });
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to get dashboard stats" });
+    return res.status(500).json({ error: "Failed to get dashboard stats" });
   }
 });
 
 router.get("/summary", async (req, res) => {
   try {
     const [criticalAlerts] = await db.select({ value: count() }).from(alertsTable)
-      .where(and(eq(alertsTable.severity, "critical"), eq(alertsTable.acknowledged, false)));
+      .where(and(eq(alertsTable.severity, "CRITICAL"), eq(alertsTable.acknowledged, false)));
     const [unacknowledgedAlerts] = await db.select({ value: count() }).from(alertsTable)
       .where(eq(alertsTable.acknowledged, false));
     const [activeSessions] = await db.select({ value: count() }).from(sessionsTable)
@@ -58,7 +58,7 @@ router.get("/summary", async (req, res) => {
     const [inactiveDevices] = await db.select({ value: count() }).from(devicesTable)
       .where(eq(devicesTable.status, "inactive"));
 
-    res.json({
+    return res.json({
       criticalAlertCount: Number(criticalAlerts.value),
       unacknowledgedAlertCount: Number(unacknowledgedAlerts.value),
       activeSessionCount: Number(activeSessions.value),
@@ -70,7 +70,7 @@ router.get("/summary", async (req, res) => {
     });
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to get monitoring summary" });
+    return res.status(500).json({ error: "Failed to get monitoring summary" });
   }
 });
 

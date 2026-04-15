@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+content = r'''import React, { useState } from "react";
 import { useDevices } from "@/hooks/use-devices";
 import { Card, CardContent, Badge, Button, Modal, Input } from "@/components/ui-elements";
 import { formatDate } from "@/lib/utils";
@@ -231,3 +231,10 @@ export default function Devices() {
     </div>
   );
 }
+'''
+
+import os
+dst = r"artifacts/oh-my-guard/src/pages/Devices.tsx"
+with open(dst, "w", encoding="utf-8") as f:
+    f.write(content)
+print("Written", os.path.getsize(dst), "bytes")

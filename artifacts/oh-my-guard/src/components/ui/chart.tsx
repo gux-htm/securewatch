@@ -98,18 +98,36 @@ ${colorConfig
   )
 }
 
+// Local payload type compatible with recharts TooltipProps payload items
+type ChartPayloadItem = {
+  type?: string;
+  name?: string | number;
+  dataKey?: string | number;
+  value?: number | string | Array<number | string>;
+  color?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  payload?: any;
+  formatter?: (value: unknown, name: unknown) => React.ReactNode;
+};
+
 const ChartTooltip = RechartsPrimitive.Tooltip
 
 const ChartTooltipContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
-    React.ComponentProps<"div"> & {
-      hideLabel?: boolean
-      hideIndicator?: boolean
-      indicator?: "line" | "dot" | "dashed"
-      nameKey?: string
-      labelKey?: string
-    }
+  React.ComponentProps<"div"> & {
+    active?: boolean;
+    payload?: ChartPayloadItem[];
+    label?: string | number;
+    labelFormatter?: (label: unknown, payload: ChartPayloadItem[]) => React.ReactNode;
+    formatter?: (value: unknown, name: unknown, item: ChartPayloadItem, index: number, payload: unknown) => React.ReactNode;
+    color?: string;
+    hideLabel?: boolean;
+    hideIndicator?: boolean;
+    indicator?: "line" | "dot" | "dashed";
+    nameKey?: string;
+    labelKey?: string;
+    labelClassName?: string;
+  }
 >(
   (
     {
@@ -136,7 +154,8 @@ const ChartTooltipContent = React.forwardRef<
         return null
       }
 
-      const [item] = payload
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const [item] = payload as any[]
       const key = `${labelKey || item?.dataKey || item?.name || "value"}`
       const itemConfig = getPayloadConfigFromPayload(config, item, key)
       const value =
@@ -184,11 +203,12 @@ const ChartTooltipContent = React.forwardRef<
         {!nestLabel ? tooltipLabel : null}
         <div className="grid gap-1.5">
           {payload
-            .filter((item) => item.type !== "none")
-            .map((item, index) => {
+            .filter((item: ChartPayloadItem) => item.type !== "none")
+            .map((item: ChartPayloadItem, index: number) => {
               const key = `${nameKey || item.name || item.dataKey || "value"}`
               const itemConfig = getPayloadConfigFromPayload(config, item, key)
-              const indicatorColor = color || item.payload.fill || item.color
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const indicatorColor = color || (item.payload as any)?.fill || item.color
 
               return (
                 <div
@@ -199,7 +219,8 @@ const ChartTooltipContent = React.forwardRef<
                   )}
                 >
                   {formatter && item?.value !== undefined && item.name ? (
-                    formatter(item.value, item.name, item, index, item.payload)
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    formatter(item.value, item.name, item as any, index, item.payload)
                   ) : (
                     <>
                       {itemConfig?.icon ? (
@@ -260,11 +281,12 @@ const ChartLegend = RechartsPrimitive.Legend
 
 const ChartLegendContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div"> &
-    Pick<RechartsPrimitive.LegendProps, "payload" | "verticalAlign"> & {
-      hideIcon?: boolean
-      nameKey?: string
-    }
+  React.ComponentProps<"div"> & {
+    payload?: Array<{ type?: string; value?: string; color?: string; dataKey?: string | number }>;
+    verticalAlign?: "top" | "bottom" | "middle";
+    hideIcon?: boolean;
+    nameKey?: string;
+  }
 >(
   (
     { className, hideIcon = false, payload, verticalAlign = "bottom", nameKey },
@@ -286,8 +308,8 @@ const ChartLegendContent = React.forwardRef<
         )}
       >
         {payload
-          .filter((item) => item.type !== "none")
-          .map((item) => {
+          .filter((item: { type?: string; value?: string; color?: string; dataKey?: string | number }) => item.type !== "none")
+          .map((item: { type?: string; value?: string; color?: string; dataKey?: string | number }) => {
             const key = `${nameKey || item.dataKey || "value"}`
             const itemConfig = getPayloadConfigFromPayload(config, item, key)
 

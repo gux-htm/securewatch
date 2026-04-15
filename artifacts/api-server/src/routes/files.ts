@@ -22,10 +22,8 @@ const eventSelect = {
   createdAt: fileEventsTable.createdAt,
 };
 
-// One row per file — latest event only
 router.get("/latest", async (req, res) => {
   try {
-    // Get the max id per filePath, then join back to get full event details
     const latest = await db.execute(sql`
       SELECT
         fe.id, fe.device_id, fe.user_id, fe.file_path, fe.action,
@@ -40,10 +38,10 @@ router.get("/latest", async (req, res) => {
       LEFT JOIN accounts a ON fe.user_id = a.id
       ORDER BY fe.created_at DESC
     `);
-    res.json(latest.rows);
+    return res.json(latest.rows);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to list latest file events" });
+    return res.status(500).json({ error: "Failed to list latest file events" });
   }
 });
 
@@ -63,14 +61,13 @@ router.get("/events", async (req, res) => {
       .orderBy(desc(fileEventsTable.createdAt))
       .limit(limit ? Number(limit) : 200);
 
-    res.json(events);
+    return res.json(events);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to list file events" });
+    return res.status(500).json({ error: "Failed to list file events" });
   }
 });
 
-// Full history for a specific file path
 router.get("/events/history", async (req, res) => {
   try {
     const { filePath, action } = req.query;
@@ -87,10 +84,10 @@ router.get("/events/history", async (req, res) => {
       .where(and(...conditions))
       .orderBy(desc(fileEventsTable.createdAt));
 
-    res.json(events);
+    return res.json(events);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to fetch file history" });
+    return res.status(500).json({ error: "Failed to fetch file history" });
   }
 });
 
@@ -99,10 +96,10 @@ router.post("/events", async (req, res) => {
     const parsed = insertFileEventSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: parsed.error.message });
     const [event] = await db.insert(fileEventsTable).values(parsed.data).returning();
-    res.status(201).json(event);
+    return res.status(201).json(event);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to create file event" });
+    return res.status(500).json({ error: "Failed to create file event" });
   }
 });
 

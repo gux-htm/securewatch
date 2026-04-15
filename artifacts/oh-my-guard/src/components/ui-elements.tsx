@@ -27,13 +27,18 @@ export const CardContent = ({ className, children }: { className?: string; child
   </div>
 );
 
-export const Badge = ({ children, variant = "default", className }: { children: React.ReactNode, variant?: "default"|"success"|"warning"|"destructive"|"outline", className?: string }) => {
-  const variants = {
+export const Badge = ({ children, variant = "default", className }: {
+  children: React.ReactNode;
+  variant?: "default" | "success" | "warning" | "destructive" | "outline" | "secondary";
+  className?: string;
+}) => {
+  const variants: Record<string, string> = {
     default: "bg-primary/20 text-primary border-primary/30",
     success: "bg-success/20 text-success border-success/30",
     warning: "bg-warning/20 text-warning border-warning/30",
     destructive: "bg-destructive/20 text-destructive border-destructive/30",
-    outline: "bg-transparent text-muted-foreground border-border"
+    outline: "bg-transparent text-muted-foreground border-border",
+    secondary: "bg-secondary/40 text-secondary-foreground border-secondary/30",
   };
   return (
     <span className={cn("px-2.5 py-0.5 rounded-full text-xs font-semibold border backdrop-blur-sm", variants[variant], className)}>
@@ -42,8 +47,12 @@ export const Badge = ({ children, variant = "default", className }: { children: 
   );
 };
 
-export const Button = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary"|"secondary"|"destructive"|"outline"|"ghost", isLoading?: boolean }>(
-  ({ className, variant = "primary", isLoading, children, disabled, ...props }, ref) => {
+export const Button = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: "primary" | "secondary" | "destructive" | "outline" | "ghost";
+  size?: "default" | "sm" | "lg" | "icon";
+  isLoading?: boolean;
+}>(
+  ({ className, variant = "primary", size = "default", isLoading, children, disabled, ...props }, ref) => {
     const variants = {
       primary: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_15px_rgba(6,182,212,0.2)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]",
       secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
@@ -51,13 +60,20 @@ export const Button = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttrib
       outline: "bg-transparent border border-border hover:bg-secondary text-foreground",
       ghost: "bg-transparent hover:bg-secondary/50 text-muted-foreground hover:text-foreground"
     };
+    const sizes = {
+      default: "px-4 py-2 text-sm",
+      sm: "px-3 py-1.5 text-xs",
+      lg: "px-6 py-3 text-base",
+      icon: "p-2 w-9 h-9",
+    };
     return (
       <button
         ref={ref}
         disabled={disabled || isLoading}
         className={cn(
-          "inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50 disabled:cursor-not-allowed",
+          "inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50 disabled:cursor-not-allowed",
           variants[variant],
+          sizes[size],
           className
         )}
         {...props}

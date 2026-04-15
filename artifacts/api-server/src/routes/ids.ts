@@ -14,10 +14,10 @@ const router: IRouter = Router();
 router.get("/signatures", async (req, res) => {
   try {
     const sigs = await db.select().from(idsSignaturesTable);
-    res.json(sigs);
+    return res.json(sigs);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to list signatures" });
+    return res.status(500).json({ error: "Failed to list signatures" });
   }
 });
 
@@ -26,10 +26,10 @@ router.post("/signatures", async (req, res) => {
     const parsed = insertIdsSignatureSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: parsed.error.message });
     const [sig] = await db.insert(idsSignaturesTable).values(parsed.data).returning();
-    res.status(201).json(sig);
+    return res.status(201).json(sig);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to create signature" });
+    return res.status(500).json({ error: "Failed to create signature" });
   }
 });
 
@@ -63,10 +63,10 @@ router.get("/alerts", async (req, res) => {
       .orderBy(desc(idsAlertsTable.createdAt))
       .limit(limit ? Number(limit) : 100);
 
-    res.json(alerts);
+    return res.json(alerts);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to list alerts" });
+    return res.status(500).json({ error: "Failed to list alerts" });
   }
 });
 
@@ -75,10 +75,10 @@ router.post("/alerts", async (req, res) => {
     const parsed = insertIdsAlertSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: parsed.error.message });
     const [alert] = await db.insert(idsAlertsTable).values(parsed.data).returning();
-    res.status(201).json(alert);
+    return res.status(201).json(alert);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to create alert" });
+    return res.status(500).json({ error: "Failed to create alert" });
   }
 });
 
@@ -90,10 +90,10 @@ router.post("/alerts/:id/resolve", async (req, res) => {
       .where(eq(idsAlertsTable.id, Number(req.params.id)))
       .returning();
     if (!alert) return res.status(404).json({ error: "Alert not found" });
-    res.json(alert);
+    return res.json(alert);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to resolve alert" });
+    return res.status(500).json({ error: "Failed to resolve alert" });
   }
 });
 

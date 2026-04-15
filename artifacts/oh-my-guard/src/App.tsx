@@ -21,6 +21,8 @@ import Zones from "@/pages/Zones";
 import Resources from "@/pages/Resources";
 import Integrations from "@/pages/Integrations";
 import Settings from "@/pages/Settings";
+import EndDevicePortal from "@/pages/EndDevicePortal";
+import DeviceRegistrationPage from "@/pages/DeviceRegistrationPage";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -34,27 +36,37 @@ const queryClient = new QueryClient({
 
 function Router() {
   return (
-    <Layout>
-      <Switch>
-        <Route path="/" component={Dashboard} />
-        <Route path="/alerts" component={Alerts} />
-        <Route path="/sessions" component={Sessions} />
-        <Route path="/devices" component={Devices} />
-        <Route path="/networks" component={Networks} />
-        <Route path="/zones" component={Zones} />
-        <Route path="/firewall" component={Firewall} />
-        <Route path="/ids" component={IdsIps} />
-        <Route path="/files" component={FileMonitor} />
-        <Route path="/resources" component={Resources} />
-        <Route path="/audit" component={AuditLogs} />
-        <Route path="/accounts" component={Accounts} />
-        <Route path="/groups" component={Groups} />
-        <Route path="/policies" component={Policies} />
-        <Route path="/integrations" component={Integrations} />
-        <Route path="/settings" component={Settings} />
-        <Route component={NotFound} />
-      </Switch>
-    </Layout>
+    <Switch>
+      {/* Public routes — no admin shell */}
+      <Route path="/register" component={DeviceRegistrationPage} />
+      <Route path="/portal" component={EndDevicePortal} />
+
+      {/* Admin shell routes */}
+      <Route>
+        <Layout>
+          <Switch>
+            <Route path="/" component={Dashboard} />
+            <Route path="/alerts" component={Alerts} />
+            <Route path="/sessions" component={Sessions} />
+            <Route path="/devices" component={Devices} />
+            <Route path="/networks" component={Networks} />
+            <Route path="/zones" component={Zones} />
+            <Route path="/firewall" component={Firewall} />
+            <Route path="/ids" component={IdsIps} />
+            <Route path="/files" component={FileMonitor} />
+            <Route path="/resources" component={Resources} />
+            <Route path="/audit" component={AuditLogs} />
+            <Route path="/accounts" component={Accounts} />
+            <Route path="/groups" component={Groups} />
+            <Route path="/policies" component={Policies} />
+            <Route path="/integrations" component={Integrations} />
+            <Route path="/settings" component={Settings} />
+            <Route path="/end-device" component={EndDevicePortal} />
+            <Route component={NotFound} />
+          </Switch>
+        </Layout>
+      </Route>
+    </Switch>
   );
 }
 

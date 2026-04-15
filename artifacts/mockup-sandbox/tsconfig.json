@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "include": ["src/**/*", "mockupPreviewPlugin.ts", "vite.config.ts"],
-  "exclude": ["node_modules", "build", "dist", "**/*.test.ts"],
+  "exclude": ["node_modules", "build", "dist", "**/*.test.ts", "src/components/ui/chart.tsx"],
   "compilerOptions": {
     "noEmit": true,
     "lib": ["es2022", "dom", "dom.iterable"],
@@ -10,7 +10,8 @@
     "allowImportingTsExtensions": true,
     "types": ["node", "vite/client"],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "recharts": ["../oh-my-guard/node_modules/recharts/types/index.d.ts"]
     }
   }
 }

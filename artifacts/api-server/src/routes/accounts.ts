@@ -1,15 +1,13 @@
-﻿import { Router, type IRouter } from "express";
+import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { accountsTable, insertAccountSchema } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
-import { createHmac } from "crypto";
 import bcrypt from "bcrypt";
 
 const router: IRouter = Router();
 
 async function hashPassword(pwd: string): Promise<string> {
-  const saltRounds = 12;
-  return bcrypt.hash(pwd, saltRounds);
+  return bcrypt.hash(pwd, 12);
 }
 
 router.get("/", async (req, res) => {
@@ -25,16 +23,16 @@ router.get("/", async (req, res) => {
       lastLogin: accountsTable.lastLogin,
       createdAt: accountsTable.createdAt,
     }).from(accountsTable);
-    res.json(accounts);
+    return res.json(accounts);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to list accounts" });
+    return res.status(500).json({ error: "Failed to list accounts" });
   }
 });
 
 router.post("/", async (req, res) => {
   try {
-    const { password, ...rest } = req.body;
+    const { password, ...rest } = req.body as { password?: string } & Record<string, unknown>;
     if (!password) return res.status(400).json({ error: "password is required" });
     const data = { ...rest, passwordHash: await hashPassword(password) };
     const parsed = insertAccountSchema.safeParse(data);
@@ -48,58 +46,64 @@ router.post("/", async (req, res) => {
       mfaEnabled: accountsTable.mfaEnabled,
       createdAt: accountsTable.createdAt,
     });
-    res.status(201).json(account);
-  } catch (err: any) {
+    return res.status(201).json(account);
+  } catch (err: unknown) {
     req.log.error(err);
-    if (err.code === "23505") return res.status(409).json({ error: "Username or email already exists" });
-    res.status(500).json({ error: "Failed to create account" });
+    if ((err as { code?: string }).code === "23505") return res.status(409).json({ error: "Username or email already exists" });
+    return res.status(500).json({ error: "Failed to create account" });
   }
 });
 
 router.patch("/:id", async (req, res) => {
   try {
-    const allowed = ["email", "role"];
-    const updates: any = {};
-    for (const k of allowed) { if (req.body[k] !== undefined) updates[k] = req.body[k]; }
-    const [account] = await db.update(accountsTable).set(updates).where(eq(accountsTable.id, Number(req.params.id))).returning();
+    const allowed = ["email", "role"] as const;
+    const updates: Record<string, unknown> = {};
+    for (const k of allowed) {
+      if ((req.body as Record<string, unknown>)[k] !== undefined) updates[k] = (req.body as Record<string, unknown>)[k];
+    }
+    const [account] = await db.update(accountsTable).set(updates)
+      .where(eq(accountsTable.id, Number(req.params.id))).returning();
     if (!account) return res.status(404).json({ error: "Account not found" });
-    res.json(account);
+    return res.json(account);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to update account" });
+    return res.status(500).json({ error: "Failed to update account" });
   }
 });
 
 router.post("/:id/suspend", async (req, res) => {
   try {
-    const [account] = await db.update(accountsTable).set({ status: "suspended" }).where(eq(accountsTable.id, Number(req.params.id))).returning();
+    const [account] = await db.update(accountsTable).set({ status: "suspended" })
+      .where(eq(accountsTable.id, Number(req.params.id))).returning();
     if (!account) return res.status(404).json({ error: "Account not found" });
-    res.json(account);
+    return res.json(account);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to suspend account" });
+    return res.status(500).json({ error: "Failed to suspend account" });
   }
 });
 
 router.post("/:id/reactivate", async (req, res) => {
   try {
-    const [account] = await db.update(accountsTable).set({ status: "active", failedLoginCount: 0 }).where(eq(accountsTable.id, Number(req.params.id))).returning();
+    const [account] = await db.update(accountsTable).set({ status: "active", failedLoginCount: 0 })
+      .where(eq(accountsTable.id, Number(req.params.id))).returning();
     if (!account) return res.status(404).json({ error: "Account not found" });
-    res.json(account);
+    return res.json(account);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to reactivate account" });
+    return res.status(500).json({ error: "Failed to reactivate account" });
   }
 });
 
 router.post("/:id/revoke", async (req, res) => {
   try {
-    const [account] = await db.update(accountsTable).set({ status: "revoked" }).where(eq(accountsTable.id, Number(req.params.id))).returning();
+    const [account] = await db.update(accountsTable).set({ status: "revoked" })
+      .where(eq(accountsTable.id, Number(req.params.id))).returning();
     if (!account) return res.status(404).json({ error: "Account not found" });
-    res.json(account);
+    return res.json(account);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to revoke account" });
+    return res.status(500).json({ error: "Failed to revoke account" });
   }
 });
 

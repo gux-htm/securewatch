@@ -9,7 +9,7 @@ const router: IRouter = Router();
 router.get("/", async (req, res) => {
   try {
     const { search, terminated } = req.query;
-    const conditions: any[] = [];
+    const conditions: ReturnType<typeof eq>[] = [];
     if (terminated === undefined || terminated === "false") {
       conditions.push(eq(sessionsTable.isTerminated, false));
     }
@@ -18,36 +18,36 @@ router.get("/", async (req, res) => {
         ilike(sessionsTable.username, `%${search}%`),
         ilike(sessionsTable.ipAddress, `%${search}%`),
         ilike(sessionsTable.deviceFingerprint, `%${search}%`)
-      ));
+      ) as ReturnType<typeof eq>);
     }
     const sessions = await db
       .select()
       .from(sessionsTable)
       .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(sessionsTable.lastActivity);
-    res.json(sessions);
+    return res.json(sessions);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to list sessions" });
+    return res.status(500).json({ error: "Failed to list sessions" });
   }
 });
 
 router.post("/", async (req, res) => {
   try {
-    const data = { ...req.body, sessionId: req.body.sessionId || randomUUID() };
+    const data = { ...(req.body as Record<string, unknown>), sessionId: (req.body as Record<string, unknown>).sessionId || randomUUID() };
     const parsed = insertSessionSchema.safeParse(data);
     if (!parsed.success) return res.status(400).json({ error: parsed.error.message });
     const [session] = await db.insert(sessionsTable).values(parsed.data).returning();
-    res.status(201).json(session);
+    return res.status(201).json(session);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to create session" });
+    return res.status(500).json({ error: "Failed to create session" });
   }
 });
 
 router.post("/:id/terminate", async (req, res) => {
   try {
-    const { terminatedBy } = req.body;
+    const { terminatedBy } = req.body as { terminatedBy?: string };
     const [session] = await db
       .update(sessionsTable)
       .set({ isTerminated: true, terminatedBy: terminatedBy || "admin" })
@@ -63,10 +63,10 @@ router.post("/:id/terminate", async (req, res) => {
       severity: "warning",
     });
 
-    res.json(session);
+    return res.json(session);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to terminate session" });
+    return res.status(500).json({ error: "Failed to terminate session" });
   }
 });
 
